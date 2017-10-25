@@ -7,7 +7,7 @@ SOURCE_F90 = $(wildcard *.f90)
 OBJECTS_F90 = $(patsubst %.f90, ../bin/%_f90.o, $(SOURCE_F90))
 
 
-F90FLAGS = -O3 -Wall
+F90FLAGS = -O3 -Wall -Wno-tabs
 EXECUTABLE = ../bin/md.e
 
 default: help

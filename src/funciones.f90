@@ -29,7 +29,7 @@ contains
 	! Distancia en el espacio de posiciones tanto para q como para x
 	! Creo que esto no sirve para nada, de última la borramos
 	function DistanciaCuad(vector,i,j,L)
-		real, dimension(:), intent(in) :: vector
+		real, dimension(:,:), intent(in) :: vector
 		real, intent(in) :: L
 		integer, intent(in) :: i
 		integer, intent(in) :: j
@@ -50,12 +50,11 @@ contains
 
 	! Vector diferencia en el espacio de fases (qo=po=1)
 	function RestaFases(vector,i,j,L)
-		real, dimension(:), intent(in) :: vector
+		real, dimension(:,:), intent(in) :: vector
 		real, intent(in) :: L
 		integer, intent(in) :: i
 		integer, intent(in) :: j
 		real, dimension(12) :: RestaFases
-		real :: d
 		integer :: k
 		RestaFases(:) = 0
 		do k=1,3   ! Vector q
@@ -100,7 +99,6 @@ contains
 
 	real function Varianza(V)
 		real, dimension(:), intent(in) :: V
-		integer :: i
 		real :: mu
 		mu = Esperanza(V)
 		Varianza = NormaCuadrado(V)/ubound(V,1)-mu*mu
