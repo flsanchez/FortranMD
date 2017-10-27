@@ -82,6 +82,7 @@ contains
 
 !!! ------------------------- !!!
 
+! Funcion para obtener el valor de la LUT, aun
 	real(16) function Valor_LUT(LUT,s)
 		real(16), intent(in) :: s
 		real(16), dimension(:), intent(in) :: LUT
