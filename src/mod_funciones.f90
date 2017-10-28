@@ -7,6 +7,9 @@ private
 	public :: DistanciaCuad
 	public :: RestaFases
 	public :: NormaCuadrado
+	public :: Valor_LUT
+	public :: Esperanza
+	public :: Varianza
 
 contains
 
