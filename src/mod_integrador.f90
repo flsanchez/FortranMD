@@ -55,7 +55,7 @@ module integrador
 					enddo
 				enddo
 			enddo
-		endsubroutine
+		end subroutine
 
 	  subroutine TransformacionHc(vector,matrizhc)
 		real(16), dimension(:,:), intent(inout) :: vector
@@ -93,17 +93,14 @@ module integrador
 	  end do
 	  end subroutine
 
-		real(16) function matrizhc(delta,omega)
-			real(16), dimension(4,4)  :: matrizhc
-			real(16) :: delta
-			real(16) :: omega
-			real(16) :: arg
-			matrizhc=0
-			arg=2*delta*omega
-			matrizhc(:,1)=(1+cos(arg), -sin(arg)  , 1-cos(arg), sin(arg) )
-			matrizhc(:,2)=(-sin(arg) ,  1-cos(arg),   sin(arg),1+cos(arg))
-			matrizhc(:,3)=(1-cos(arg),  sin(arg)  , 1+cos(arg),-sin(arg) )
-			matrizhc(:,4)=(sin(arg)  , 1+cos(arg) ,  -sin(arg),1-cos(arg))
-		end function
+	 function matrizhc(arg)
+		real(16), dimension(4,4)  :: matrizhc
+		real(16), intent(in) :: arg
+		matrizhc=0
+		matrizhc(:,1)=(1+cos(arg), -sin(arg)  , 1-cos(arg), sin(arg) )
+		matrizhc(:,2)=(-sin(arg) ,  1-cos(arg),   sin(arg),1+cos(arg) )
+		matrizhc(:,3)=(1-cos(arg),  sin(arg)  , 1+cos(arg),-sin(arg) )
+		matrizhc(:,4)=(sin(arg)  , 1+cos(arg) ,  -sin(arg),1-cos(arg))
+	end function
 
 end module
