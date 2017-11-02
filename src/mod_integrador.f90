@@ -81,14 +81,14 @@ module integrador
 		!aca tenia que ordenar de nuevo  yo tenia (qpxy)--->(qyxp)
 		!entonces q-->q//p-->y...etc
 		do j=1,3
-	    vector(j,i)=nvector(j)
-	    vector(j+6,i)=nvector(j+6)
+	    vector(i,j)=nvector(j)
+	    vector(i,j+6)=nvector(j+6)
 		end do
 		do m=1,3
-	    vector(m+9,i)=nvector(m+3)
+	    vector(i,m+9)=nvector(m+3)
 		end do
 		do n=1,3
-	    vector(m+3,i)=nvector(m+9)
+	    vector(i,m+3)=nvector(m+9)
 		end do
 	  end do
 	  end subroutine
@@ -101,28 +101,28 @@ module integrador
 !		matrizhc(3,3)=1+cos(arg)
 !		matrizhc(2,4)=1+cos(arg)
 !		matrizhc(4,2)=1+cos(arg)
-		
+
 !		matrizhc(1,2)=-sin(arg)
 !		matrizhc(2,1)=-sin(arg)
 !		matrizhc(3,4)=-sin(arg)
 !		matrizhc(4,3)=-sin(arg)
-			
+
 !		matrizhc(1,4)=sin(arg)
 !		matrizhc(4,1)=sin(arg)
-!		matrizhc(2,3)=sin(arg)		
+!		matrizhc(2,3)=sin(arg)
 !		matrizhc(3,2)=sin(arg)
 
 !		matrizhc(1,3)=1-cos(arg)
 !		matrizhc(2,2)=1-cos(arg)
 !		matrizhc(3,1)=1-cos(arg)
 !		matrizhc(4,4)=1-cos(arg)
-		
+
 !creo que asi se solucionaba pero lo hice de la manera chota de arriba  igual habira que testear esto
 
 		matrizhc(1,:)=(/ 1+cos(arg), -sin(arg)  , 1-cos(arg), sin(arg) /)
-		matrizhc(2,:)=(/ -sin(arg) ,  1-cos(arg),   sin(arg),1+cos(arg) /)
+		matrizhc(2,:)=(/ -sin(arg) ,  1-cos(arg), sin(arg),1+cos(arg) /)
 		matrizhc(3,:)=(/ 1-cos(arg),  sin(arg)  , 1+cos(arg),-sin(arg) /)
-		matrizhc(4,:)=(/ sin(arg)  , 1+cos(arg) ,  -sin(arg),1-cos(arg) /)
+		matrizhc(4,:)=(/ sin(arg)  , 1+cos(arg) , -sin(arg),1-cos(arg) /)
 	end function
 
 end module
