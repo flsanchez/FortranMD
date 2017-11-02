@@ -164,7 +164,7 @@ module integrador
 		matrizhc(4,:)=(/ sin(arg)  , 1+cos(arg) , -sin(arg),1-cos(arg) /)
 	end function
 
-	function avanzar(vector,delta,V,L,LUT,matriz)
+	subroutine avanzar(vector,delta,V,L,LUT,matriz)
 		real(16), dimension(:,:), intent(inout) :: vector
 		real(16), dimension(:,:), intent(in) :: matriz
 		real(16), dimension(:), intent(in) :: LUT
@@ -172,10 +172,9 @@ module integrador
 		real(16), intent(in) :: V
 		real(16), intent(in) :: L
 		TransformacionHa(vector,delta*0.5,V,L,LUT)
-!	TransformacionHb(vector,delta*0.5,V,L,LUT)
-	TransformacionHc(vector,matrizhc)
-!	TransformacionHb(vector,delta*0.5,V,L,LUT)
-	TransformacionHa(vector,delta*0.5,V,L,LUT)
-
-
+	  TransformacionHb(vector,delta*0.5,V,L,LUT)
+		TransformacionHc(vector,matrizhc)
+		TransformacionHb(vector,delta*0.5,V,L,LUT)
+		TransformacionHa(vector,delta*0.5,V,L,LUT)
+	end subroutine
 end module
