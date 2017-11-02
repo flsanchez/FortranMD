@@ -37,9 +37,6 @@ module integrador
 			N = ubound(vector, dim=1)
 			do i = 1, N
 				! q e y quedan igual
-				do k = 1, 6
-					vector(i,k) = vector(i,k)  !<--- Nontendo, ¿porque asignamos a si mismo al vector?
-				enddo
 				do j = 1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
 					yij2 = DistanciaCuad(vector,i,j,L,1)
@@ -101,22 +98,22 @@ module integrador
 !		matrizhc(3,3)=1+cos(arg)
 !		matrizhc(2,4)=1+cos(arg)
 !		matrizhc(4,2)=1+cos(arg)
-		
+
 !		matrizhc(1,2)=-sin(arg)
 !		matrizhc(2,1)=-sin(arg)
 !		matrizhc(3,4)=-sin(arg)
 !		matrizhc(4,3)=-sin(arg)
-			
+
 !		matrizhc(1,4)=sin(arg)
 !		matrizhc(4,1)=sin(arg)
-!		matrizhc(2,3)=sin(arg)		
+!		matrizhc(2,3)=sin(arg)
 !		matrizhc(3,2)=sin(arg)
 
 !		matrizhc(1,3)=1-cos(arg)
 !		matrizhc(2,2)=1-cos(arg)
 !		matrizhc(3,1)=1-cos(arg)
 !		matrizhc(4,4)=1-cos(arg)
-		
+
 !creo que asi se solucionaba pero lo hice de la manera chota de arriba  igual habira que testear esto
 
 		matrizhc(1,:)=(/ 1+cos(arg), -sin(arg)  , 1-cos(arg), sin(arg) /)
