@@ -38,7 +38,7 @@ module integrador
 			do i = 1, N
 				! q e y quedan igual
 				do k = 1, 6
-					vector(i,k) = vector(i,k)
+					vector(i,k) = vector(i,k)  !<--- Nontendo, ¿porque asignamos a si mismo al vector?
 				enddo
 				do j = 1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
@@ -46,12 +46,12 @@ module integrador
 					do k = 7, 9
 						yi = vector(i,k-3)
 						yj = vector(j,k-3)
-						vector(i,k) = vector(i,k) - delta/2*(yi-2*V*(yi-yj)*Valor_LUT(LUT,-qij2-yij2))
+						vector(i,k) = vector(i,k) - delta/2*(yi-2*V*(yi-yj)*Valor_LUT(LUT,qij2+yij2))
 					enddo
 					do k = 10, 12
 						qi = vector(i,k-9)
 						qj = vector(j,k-9)
-						vector(i,k) = vector(i,k) + delta*V*(qi-qj)*Valor_LUT(LUT,-qij2-yij2)
+						vector(i,k) = vector(i,k) + delta*V*(qi-qj)*Valor_LUT(LUT,qij2+yij2)
 					enddo
 				enddo
 			enddo
