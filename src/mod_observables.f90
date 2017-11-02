@@ -32,7 +32,7 @@ module observables
 			EnergiaPotencial = 0
 			do i=2,ubound(vector,1)
 				do j=1,(i-1)
-					EnergiaPotencial = EnergiaPotencial + Valor_LUT(LUT,DistanciaCuad(vector,i,j,L,1)+DistanciaCuad(vector,i,j,L,4))
+					EnergiaPotencial = EnergiaPotencial + Valor_LUT(LUT,DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3))
 				end do
 			end do
 			EnergiaPotencial = V*EnergiaPotencial

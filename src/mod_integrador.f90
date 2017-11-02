@@ -38,9 +38,10 @@ module integrador
 			!q,y,x,p
 			N = ubound(vector, dim=1)
 			do i = 1, N
+				! para x
 				do k = 7, 9
 					yi = vector(i,k-3)
-					vector(i,k) = vector(i,k) + delta/2*yi
+					vector(i,k) = vector(i,k) + delta*yi
 				enddo
 				! q e y quedan igual
 				do j = 1, N
@@ -50,13 +51,13 @@ module integrador
 					do k = 7, 9
 						yi = vector(i,k-3)
 						yj = vector(j,k-3)
-						vector(i,k) = vector(i,k) - delta*V*(yi-yj)*Valor_LUT(LUT,qij2+yij2)
+						vector(i,k) = vector(i,k) - 2*delta*V*(yi-yj)*Valor_LUT(LUT,qij2+yij2)
 					enddo
 					! para p
 					do k = 10, 12
 						qi = vector(i,k-9)
 						qj = vector(j,k-9)
-						vector(i,k) = vector(i,k) + delta*V*(qi-qj)*Valor_LUT(LUT,qij2+yij2)
+						vector(i,k) = vector(i,k) + 2*delta*V*(qi-qj)*Valor_LUT(LUT,qij2+yij2)
 					enddo
 				enddo
 			enddo
@@ -68,6 +69,7 @@ module integrador
 			real(16), intent(in) :: delta
 			real(16), intent(in) :: V
 			real(16), intent(in) :: L
+			real(16) :: V_aux
 			real(16) :: pij2
 			real(16) :: xij2
 			real(16) :: pi
@@ -83,23 +85,26 @@ module integrador
 			do i = 1, N
 				do k = 1, 3
 					pi = vector(i,k+9)
-					vector(i,k) = vector(i,k) + delta/2*pi
+					vector(i,k) = vector(i,k) + delta*pi
 				enddo
 				! x y p quedan igual
 				do j = 1, N
-					pij2 = DistanciaCuad(vector,i,j,L,3)
 					xij2 = DistanciaCuad(vector,i,j,L,2)
+					pij2 = DistanciaCuad(vector,i,j,L,3)
+					!write (*,*) 'Averga', xij2, pij2
+					V_aux = Valor_LUT(LUT,pij2+xij2)
+					!write (*,*) V_aux
 					! para q
 					do k = 1, 3
 						pi = vector(i,k+9)
 						pj = vector(j,k+9)
-						vector(i,k) = vector(i,k) - delta*V*(pi-pj)*Valor_LUT(LUT,pij2+xij2)
+						vector(i,k) = vector(i,k) - 2*delta*V*(pi-pj)*V_aux
 					enddo
 					! para y
 					do k = 4, 6
 						xi = vector(i,k+3)
 						xj = vector(j,k+3)
-						vector(i,k) = vector(i,k) + delta*V*(xi-xj)*Valor_LUT(LUT,xij2+pij2)
+						vector(i,k) = vector(i,k) + 2*delta*V*(xi-xj)*V_aux
 					enddo
 				enddo
 			enddo
@@ -113,30 +118,25 @@ module integrador
 	  integer :: j
 	  integer :: k
 	  integer :: l
-	  integer :: m
-	  integer :: n
 
-	  nvector(:)=0
+		nvector(:)=0
 	  do i=1,ubound(vector, dim=1)
+			nvector(:)=0
 	    do l=1,3
 	      do k=1,4
-	        nvector(l+0)=nvector(l+0)+0.5*matrizhc(k,1)*vector(l+3*(k-1),i)
-	        nvector(l+3)=nvector(l+3)+0.5*matrizhc(k,2)*vector(l+3*(k-1),i)
-	        nvector(l+6)=nvector(l+6)+0.5*matrizhc(k,3)*vector(l+3*(k-1),i)
-	        nvector(l+9)=nvector(l+9)+0.5*matrizhc(k,4)*vector(l+3*(k-1),i)
+	        nvector(l+0)=nvector(l+0)+0.5*matrizhc(k,1)*vector(i,l+3*(k-1))
+	        nvector(l+3)=nvector(l+3)+0.5*matrizhc(k,2)*vector(i,l+3*(k-1))
+	        nvector(l+6)=nvector(l+6)+0.5*matrizhc(k,3)*vector(i,l+3*(k-1))
+	        nvector(l+9)=nvector(l+9)+0.5*matrizhc(k,4)*vector(i,l+3*(k-1))
 	      end do
 	    end do
 		!aca tenia que ordenar de nuevo  yo tenia (qpxy)--->(qyxp)
 		!entonces q-->q//p-->y...etc
 			do j=1,3
 	    	vector(i,j)=nvector(j)
+				vector(i,j+3)=nvector(j+9)
 	    	vector(i,j+6)=nvector(j+6)
-			end do
-			do m=1,3
-	    	vector(i,m+9)=nvector(m+3)
-			end do
-			do n=1,3
-	    	vector(i,m+3)=nvector(m+9)
+				vector(i,j+9)=nvector(j+3)
 			end do
 	  end do
 	  end subroutine
@@ -149,7 +149,7 @@ module integrador
 !		matrizhc(3,3)=1+cos(arg)
 !		matrizhc(2,4)=1+cos(arg)
 !		matrizhc(4,2)=1+cos(arg)
-
+!
 !		matrizhc(1,2)=-sin(arg)
 !		matrizhc(2,1)=-sin(arg)
 !		matrizhc(3,4)=-sin(arg)

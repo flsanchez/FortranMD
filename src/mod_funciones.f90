@@ -13,6 +13,10 @@ private
 
 contains
 
+	! vector(i,j): i es numero de particula (1 <= i <= N),
+	! j es q,y,x,p (1 <= j <= 12),
+	! dim(vector(i,j)) = Nx12
+
 	! Esta subrutina transforma d según las CdC períodicas
 	! Antes era la funcion Delta, pero le paso directo d para hacerla más directa
 	! Aclaración: d es la diferencia entre 2 coordenadas espaciales (q o x) de 2 particulas
@@ -22,8 +26,10 @@ contains
 		if (d>0.5*L) then
 			d = d-L
 		else
-			if (d<-0.5*L) then
-				d = L+d
+			if (d>-0.5*L) then
+				d = d
+			else
+				d = d+L
 			end if
 		end if
 	end subroutine
@@ -41,15 +47,15 @@ contains
 		integer(4), intent(in) :: k
 		real(16) :: d
 		integer(4) :: m
-		DistanciaCuad = 0 ! La 1º coordenada es la distancia cuadrado en q y la 2º es la distancia cuadrado en x
+		DistanciaCuad = 0
 		if (k==1 .or. k==3) then   ! Es un impulso, no hay CdCP
 			do m=1,3
-				d = vector(k*3+m,i)-vector(k*3+m,j)
-				DistanciaCuad = DistanciaCuad+d*d
+				d = vector(i,k*3+m)-vector(j,k*3+m)
+				DistanciaCuad = DistanciaCuad + d*d
 			end do
 		else  ! Es una posicion, tengo que aplicar CdCP
 			do m=1,3
-				d = vector(k*3+m,i)-vector(k*3+m,j)
+				d = vector(i,k*3+m)-vector(j,k*3+m)
 				call CdCP(d,L)
 				DistanciaCuad = DistanciaCuad+d*d
 			end do
@@ -67,18 +73,18 @@ contains
 		integer :: k
 		RestaFases(:) = 0
 		do k=1,3   ! Vector q
-			RestaFases(k) = vector(k,i)-vector(k,j)
+			RestaFases(k) = vector(i,k)-vector(j,k)
 			call CdCP(RestaFases(k),L)
 		end do
 		do k=4,6	! Vector y
-			RestaFases(k) = vector(k,i)-vector(k,j)
+			RestaFases(k) = vector(i,k)-vector(j,k)
 		end do
 		do k=7,9	! Vector x
-			RestaFases(k) = vector(k,i)-vector(k,j)
+			RestaFases(k) = vector(i,k)-vector(j,k)
 			call CdCP(RestaFases(k),L)
 		end do
 		do k=10,12	! Vector p
-			RestaFases(k) = vector(k,i)-vector(k,j)
+			RestaFases(k) = vector(i,k)-vector(j,k)
 		end do
 	end function
 
