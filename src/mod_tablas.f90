@@ -21,9 +21,9 @@ module tablas
       open(unit = 100, file = pathToTable, status = 'old', action = 'read')
       read(100,*), N
       allocate(tabla(N))
-      do j = 1, N
-        read(100,*) tabla(j)
-      end do
+      !do j = 1, N
+      read(100,*) (tabla(j),j = 1,N)
+      !end do
       close(unit = 100)
 
     end subroutine
@@ -33,7 +33,7 @@ end module
 ! program main
 !
 !   use tablas
-!   double precision, dimension(:), allocatable:: tablas
+!   double precision, dimension(:), allocatable :: tablas
 !   character(len=10) :: pathToTable
 !   integer :: N
 !
