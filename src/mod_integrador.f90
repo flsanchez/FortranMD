@@ -171,10 +171,10 @@ module integrador
 		real(16), intent(in) :: delta
 		real(16), intent(in) :: V
 		real(16), intent(in) :: L
-		TransformacionHa(vector,delta*0.5,V,L,LUT)
-	  TransformacionHb(vector,delta*0.5,V,L,LUT)
-		TransformacionHc(vector,matrizhc)
-		TransformacionHb(vector,delta*0.5,V,L,LUT)
-		TransformacionHa(vector,delta*0.5,V,L,LUT)
+		call TransformacionHa(vector,delta*0.5,V,L,LUT)
+	  call TransformacionHb(vector,delta*0.5,V,L,LUT)
+		call TransformacionHc(vector,matrizhc)
+		call TransformacionHb(vector,delta*0.5,V,L,LUT)
+		call TransformacionHa(vector,delta*0.5,V,L,LUT)
 	end subroutine
 end module
