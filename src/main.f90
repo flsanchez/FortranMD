@@ -27,7 +27,7 @@ program hola
   vector(2,1) = L/2+dq(1)
   vector(1,10) =  dp(1)     ! Esta es la velocidad de la particula disparada, la otra esta quieta
 
-  call leer_tablas(LUT,'tablas.txt')
+  call leer_tablas(LUT,'tabla.txt')
 
   do i=2,N
     call avanzar(vector,delta,V,L,LUT,matriz)
@@ -35,4 +35,7 @@ program hola
     dq(i) = vector(2,1)-vector(1,1)
   end do
 
+  open(unit = 100, file = "choque.txt")
+  write(100,*) (dq(i),i=1,N)
+  write(100,*) (dp(i),i=1,N)
 end program
