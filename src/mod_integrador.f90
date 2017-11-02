@@ -66,7 +66,7 @@ module integrador
 	  integer :: n
 
 	  nvector=0
-	  do i=1,2
+	  do i=1,ubound(vector, dim=1)
 	    do l=1,3
 	      do k=1,4
 	        nvector(l+0)=nvector(l+0)+0.5*matrizhc(k,1)*vector(l+3*(k-1),i)
@@ -77,16 +77,16 @@ module integrador
 	    end do
 		!aca tenia que ordenar de nuevo  yo tenia (qpxy)--->(qyxp)
 		!entonces q-->q//p-->y...etc
-		do j=1,3
-	    vector(i,j)=nvector(j)
-	    vector(i,j+6)=nvector(j+6)
-		end do
-		do m=1,3
-	    vector(i,m+9)=nvector(m+3)
-		end do
-		do n=1,3
-	    vector(i,m+3)=nvector(m+9)
-		end do
+			do j=1,3
+	    	vector(i,j)=nvector(j)
+	    	vector(i,j+6)=nvector(j+6)
+			end do
+			do m=1,3
+	    	vector(i,m+9)=nvector(m+3)
+			end do
+			do n=1,3
+	    	vector(i,m+3)=nvector(m+9)
+			end do
 	  end do
 	  end subroutine
 
