@@ -37,9 +37,6 @@ module integrador
 			N = ubound(vector, dim=1)
 			do i = 1, N
 				! q e y quedan igual
-				do k = 1, 6
-					vector(i,k) = vector(i,k)  !<--- Nontendo, ¿porque asignamos a si mismo al vector?
-				enddo
 				do j = 1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
 					yij2 = DistanciaCuad(vector,i,j,L,1)

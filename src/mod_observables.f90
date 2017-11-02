@@ -7,6 +7,7 @@ module observables
 	private
 
 		public :: EnergiaCinetica
+		public :: EnergiaPotencial
 
 	contains
 
