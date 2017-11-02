@@ -30,7 +30,7 @@ executable: $(EXECUTABLE)
 
 modules: $(MODS_OBJ)
 
-all: module objects executable
+all: modules objects executable
 
 ../bin/%_f90.o: %.f90
 	$(CC) $(F90FLAGS) -c $^ -o $@

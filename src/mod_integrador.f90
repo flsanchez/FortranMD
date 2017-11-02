@@ -10,6 +10,7 @@ module integrador
 		public :: TransformacionHb
 		public :: TransformacionHc
 		public :: matrizhc
+		public :: avanzar
 		!vector  (q,y,x,p)  [12,N]
 
 	contains
@@ -173,7 +174,7 @@ module integrador
 		real(16), intent(in) :: L
 		call TransformacionHa(vector,delta*0.5,V,L,LUT)
 	  call TransformacionHb(vector,delta*0.5,V,L,LUT)
-		call TransformacionHc(vector,matrizhc)
+		call TransformacionHc(vector,matriz)
 		call TransformacionHb(vector,delta*0.5,V,L,LUT)
 		call TransformacionHa(vector,delta*0.5,V,L,LUT)
 	end subroutine

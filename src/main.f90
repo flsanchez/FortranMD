@@ -11,7 +11,6 @@ program hola
   real(16) :: L = 10    ! Caja muy grande, donde las imagenes no interactuan
   real(16), dimension(2,24) :: vector
   real(16), dimension(:), allocatable :: LUT
-  character(len=10) :: pathToTable = 'tablas.txt'
   real(16) :: delta= 1E-3
   real(16) :: w =1E3  ! Parametro magico del integrador
   real(16), dimension(4,4) :: matriz
