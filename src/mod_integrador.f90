@@ -7,6 +7,7 @@ module integrador
 	private
 
 		public :: TransformacionHa
+		public :: TransformacionHb
 		public :: TransformacionHc
 		public :: matrizhc
 		!vector  (q,y,x,p)  [12,N]
@@ -40,15 +41,56 @@ module integrador
 				do j = 1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
 					yij2 = DistanciaCuad(vector,i,j,L,1)
+					! para x
 					do k = 7, 9
 						yi = vector(i,k-3)
 						yj = vector(j,k-3)
 						vector(i,k) = vector(i,k) - delta/2*(yi-2*V*(yi-yj)*Valor_LUT(LUT,qij2+yij2))
 					enddo
+					! para p
 					do k = 10, 12
 						qi = vector(i,k-9)
 						qj = vector(j,k-9)
 						vector(i,k) = vector(i,k) + delta*V*(qi-qj)*Valor_LUT(LUT,qij2+yij2)
+					enddo
+				enddo
+			enddo
+		end subroutine
+
+		subroutine TransformacionHb(vector,delta,V,L,LUT)
+			real(16), dimension(:,:), intent(inout) :: vector
+			real(16), dimension(:), intent(in) :: LUT
+			real(16), intent(in) :: delta
+			real(16), intent(in) :: V
+			real(16), intent(in) :: L
+			real(16) :: pij2
+			real(16) :: xij2
+			real(16) :: pi
+			real(16) :: pj
+			real(16) :: xi
+			real(16) :: xj
+			integer :: i ! indice de particula
+			integer :: j ! indice de sumatoria
+			integer :: k ! indice de componente vectorial
+			integer :: N
+			!q,y,x,p
+			N = ubound(vector, dim=1)
+			do i = 1, N
+				! x y p quedan igual
+				do j = 1, N
+					pij2 = DistanciaCuad(vector,i,j,L,3)
+					xij2 = DistanciaCuad(vector,i,j,L,2)
+					! para q
+					do k = 1, 3
+						pi = vector(i,k+9)
+						pj = vector(j,k+9)
+						vector(i,k) = vector(i,k) + delta/2*(pi-2*V*(pi-pj)*Valor_LUT(LUT,pij2+xij2))
+					enddo
+					! para y
+					do k = 4, 6
+						xi = vector(i,k+3)
+						xj = vector(j,k+3)
+						vector(i,k) = vector(i,k) + delta*V*(xi-xj)*Valor_LUT(LUT,xij2+pij2)
 					enddo
 				enddo
 			enddo
