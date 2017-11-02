@@ -60,16 +60,7 @@ int main(int argc, char **argv){
     printf("1\n");
     double* LUT1 = LUT_exp(N);
     guardar_tablas(LUT1,N);
-    printf("2\n");
-    double* LUT2;
-    leer_tablas(&LUT2);
-    printf("3\n");
-    for(int i=0;i<N;i++){
-      printf("%lg, ", LUT2[i]);
-    }
-    printf("\n5\n");
     free(LUT1);
-    free(LUT2);
   }else{
     printf("Error: Introduzca cantidad de puntos\n");
   }

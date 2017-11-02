@@ -35,9 +35,13 @@ module integrador
 			integer :: j ! indice de sumatoria
 			integer :: k ! indice de componente vectorial
 			integer :: N
-
+			!q,y,x,p
 			N = ubound(vector, dim=1)
 			do i = 1, N
+				do k = 7, 9
+					yi = vector(i,k-3)
+					vector(i,k) = vector(i,k) + delta/2*yi
+				enddo
 				! q e y quedan igual
 				do j = 1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
@@ -46,7 +50,7 @@ module integrador
 					do k = 7, 9
 						yi = vector(i,k-3)
 						yj = vector(j,k-3)
-						vector(i,k) = vector(i,k) - delta/2*(yi-2*V*(yi-yj)*Valor_LUT(LUT,qij2+yij2))
+						vector(i,k) = vector(i,k) - delta*V*(yi-yj)*Valor_LUT(LUT,qij2+yij2)
 					enddo
 					! para p
 					do k = 10, 12
@@ -77,6 +81,10 @@ module integrador
 			!q,y,x,p
 			N = ubound(vector, dim=1)
 			do i = 1, N
+				do k = 1, 3
+					pi = vector(i,k+9)
+					vector(i,k) = vector(i,k) + delta/2*pi
+				enddo
 				! x y p quedan igual
 				do j = 1, N
 					pij2 = DistanciaCuad(vector,i,j,L,3)
@@ -85,7 +93,7 @@ module integrador
 					do k = 1, 3
 						pi = vector(i,k+9)
 						pj = vector(j,k+9)
-						vector(i,k) = vector(i,k) + delta/2*(pi-2*V*(pi-pj)*Valor_LUT(LUT,pij2+xij2))
+						vector(i,k) = vector(i,k) - delta*V*(pi-pj)*Valor_LUT(LUT,pij2+xij2)
 					enddo
 					! para y
 					do k = 4, 6
@@ -108,7 +116,7 @@ module integrador
 	  integer :: m
 	  integer :: n
 
-	  nvector=0
+	  nvector(:)=0
 	  do i=1,ubound(vector, dim=1)
 	    do l=1,3
 	      do k=1,4
