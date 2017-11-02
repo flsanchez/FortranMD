@@ -10,13 +10,13 @@ module tablas
     ! Esta subrutina lee el archivo en la ubicacion pathToTable (suponiendo
     ! mismo directorio que el ejecutable) y aloca en la memoria la variable
     ! tabla, con el tamaño del array dado por la primer linea de la tabla
-    
+
     subroutine leer_tablas(tabla,pathToTable)
 
       integer :: j
       integer :: N
-      double precision, dimension(:), allocatable :: tabla
-      character(len=*) :: pathToTable
+      real(16), dimension(:), allocatable, intent(inout) :: tabla
+      character(len=*), intent(in):: pathToTable
 
       open(unit = 100, file = pathToTable, status = 'old', action = 'read')
       read(100,*), N
@@ -33,7 +33,7 @@ end module
 ! program main
 !
 !   use tablas
-!   double precision, dimension(:), allocatable:: tablas
+!   double precision, dimension(:), allocatable :: tablas
 !   character(len=10) :: pathToTable
 !   integer :: N
 !
