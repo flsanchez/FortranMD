@@ -20,6 +20,7 @@ module observables
 			do i=1,ubound(vector,1)
 				EnergiaCinetica = EnergiaCinetica + vector(i,10)*vector(i,10) + vector(i,11)*vector(i,11) + vector(i,12)*vector(i,12)
 			end do
+			EnergiaCinetica = EnergiaCinetica/2
 		end function
 
 		real(16) function EnergiaPotencial(vector,L,LUT,V)
@@ -32,7 +33,8 @@ module observables
 			EnergiaPotencial = 0
 			do i=2,ubound(vector,1)
 				do j=1,(i-1)
-					EnergiaPotencial = EnergiaPotencial + Valor_LUT(LUT,DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3))
+					EnergiaPotencial = EnergiaPotencial + exp( -0.5*(DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3)) )
+					!Valor_LUT(LUT,DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3))
 				end do
 			end do
 			EnergiaPotencial = V*EnergiaPotencial

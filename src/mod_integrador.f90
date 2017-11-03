@@ -25,6 +25,7 @@ module integrador
 			real(16), intent(in) :: delta
 			real(16), intent(in) :: V
 			real(16), intent(in) :: L
+			real(16) :: V_aux
 			real(16) :: qij2
 			real(16) :: yij2
 			real(16) :: qi
@@ -47,20 +48,22 @@ module integrador
 				do j = 1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
 					yij2 = DistanciaCuad(vector,i,j,L,1)
+					!V_aux = V*Valor_LUT(LUT,qij2+yij2)
+					V_aux = V*exp(-0.5*(qij2+yij2))
 					! para x
 					do k = 7, 9
 						yi = vector(i,k-3)
 						yj = vector(j,k-3)
-						vector(i,k) = vector(i,k) - 2*delta*V*(yi-yj)*Valor_LUT(LUT,qij2+yij2)
+						vector(i,k) = vector(i,k) - delta*(yi-yj)*V_aux
 					enddo
 					! para p
 					do k = 10, 12
 						qi = vector(i,k-9)
 						qj = vector(j,k-9)
-						vector(i,k) = vector(i,k) + 2*delta*V*(qi-qj)*Valor_LUT(LUT,qij2+yij2)
-					enddo
+						vector(i,k) = vector(i,k) + delta*(qi-qj)*V_aux
 				enddo
 			enddo
+		end do
 		end subroutine
 
 		subroutine TransformacionHb(vector,delta,V,L,LUT)
@@ -91,20 +94,19 @@ module integrador
 				do j = 1, N
 					xij2 = DistanciaCuad(vector,i,j,L,2)
 					pij2 = DistanciaCuad(vector,i,j,L,3)
-					!write (*,*) 'Averga', xij2, pij2
-					V_aux = Valor_LUT(LUT,pij2+xij2)
-					!write (*,*) V_aux
+					!V_aux = V*Valor_LUT(LUT,sqrt(xij2+pij2))
+					V_aux = V*exp(-0.5*(xij2+pij2))
 					! para q
 					do k = 1, 3
 						pi = vector(i,k+9)
 						pj = vector(j,k+9)
-						vector(i,k) = vector(i,k) - 2*delta*V*(pi-pj)*V_aux
+						vector(i,k) = vector(i,k) - delta*(pi-pj)*V_aux
 					enddo
 					! para y
 					do k = 4, 6
 						xi = vector(i,k+3)
 						xj = vector(j,k+3)
-						vector(i,k) = vector(i,k) + 2*delta*V*(xi-xj)*V_aux
+						vector(i,k) = vector(i,k) + delta*(xi-xj)*V_aux
 					enddo
 				enddo
 			enddo

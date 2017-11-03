@@ -3,22 +3,30 @@ import matplotlib.pyplot as plt
 
 name = "choque.txt"
 
-q, p, x,y,energia = np.loadtxt(name, unpack = True, delimiter = ';')
+q, p, x,y,energia,energiaC = np.loadtxt(name, unpack = True, delimiter = ';')
 print p[0:10]
+print y[0:10]
 print q[0:10]
+print x[0:10]
 print energia[0:10]
 
+n=100000
+
+"""plt.figure()
+plt.plot(range(0,n),q[:n],'b-')
+plt.plot(range(0,n),x[:n],'g-')
+plt.ylabel("Posicion")
 plt.figure()
-plt.plot(range(0,len(q)),q,'b')
-plt.plot(range(0,len(q)),x,'g')
-plt.xlim((0,100))
+plt.plot(range(0,n),p[:n],'r-')
+plt.plot(range(0,n),y[:n],'g-')
+plt.ylabel("Momento")"""
 plt.figure()
-plt.plot(range(0,len(q)),p,'r')
-plt.plot(range(0,len(q)),y,'g')
-plt.xlim((0,100))
+plt.plot(q[0:n],p[0:n],"-")
+plt.ylabel("Momento")
+plt.xlabel("Posicion")
 plt.figure()
-plt.plot(p,q)
-plt.figure()
-plt.plot(energia,'g')
-plt.xlim((0,100))
+plt.plot(energia[0:n],'g')
+plt.plot(energiaC[0:n],'r')
+plt.ylabel("Energia")
+plt.legend(["Total", "Cinetica"])
 plt.show()
