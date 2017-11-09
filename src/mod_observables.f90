@@ -15,12 +15,7 @@ module observables
 
 		real(16) function EnergiaCinetica(vector)
 			real(16), dimension(:,:), intent(in) :: vector
-			integer :: i
-			EnergiaCinetica = 0
-			do i=1,ubound(vector,1)
-				EnergiaCinetica = EnergiaCinetica + vector(i,10)*vector(i,10) + vector(i,11)*vector(i,11) + vector(i,12)*vector(i,12)
-			end do
-			EnergiaCinetica = EnergiaCinetica/2
+			EnergiaCinetica = 0.5*sum(vector(:,10:12)**2)
 		end function
 
 		real(16) function EnergiaPotencial(vector,L,LUT,V)

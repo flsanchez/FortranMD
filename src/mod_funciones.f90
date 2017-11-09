@@ -46,14 +46,12 @@ contains
 		integer, intent(in) :: j
 		integer(4), intent(in) :: k
 		real(16) :: d
-		integer(4) :: m
-		DistanciaCuad = 0
+		integer(4) :: m = 0
 		if (k==1 .or. k==3) then   ! Es un impulso, no hay CdCP
-			do m=1,3
-				d = vector(i,k*3+m)-vector(j,k*3+m)
-				DistanciaCuad = DistanciaCuad + d*d
-			end do
+			m = 3*k
+			DistanciaCuad = sum((vector(i,m:m+3)-vector(j,m:m+3))**2)
 		else  ! Es una posicion, tengo que aplicar CdCP
+			DistanciaCuad = 0
 			do m=1,3
 				d = vector(i,k*3+m)-vector(j,k*3+m)
 				call CdCP(d,L)
@@ -71,20 +69,12 @@ contains
 		integer, intent(in) :: j
 		real(16), dimension(12) :: RestaFases
 		integer :: k
-		RestaFases(:) = 0
+		RestaFases = vector(i,:)-vector(j,:)
 		do k=1,3   ! Vector q
-			RestaFases(k) = vector(i,k)-vector(j,k)
 			call CdCP(RestaFases(k),L)
-		end do
-		do k=4,6	! Vector y
-			RestaFases(k) = vector(i,k)-vector(j,k)
 		end do
 		do k=7,9	! Vector x
-			RestaFases(k) = vector(i,k)-vector(j,k)
 			call CdCP(RestaFases(k),L)
-		end do
-		do k=10,12	! Vector p
-			RestaFases(k) = vector(i,k)-vector(j,k)
 		end do
 	end function
 
@@ -113,22 +103,13 @@ contains
 	! Calcula la norma cuadrado de un vector cualquiera
 	real(16) function NormaCuadrado(V)
 		real(16), dimension(:), intent(in) :: V
-		integer :: i
-		NormaCuadrado = 0
-		do i= lbound(V,1), ubound(V,1)
-			NormaCuadrado = NormaCuadrado + V(i)*V(i)
-		end do
+		NormaCuadrado = sum(V**2)
 	end function
 
 	! Calcula el promedio de un vector cualquiera
 	real(16) function Esperanza(V)
 		real(16), dimension(:), intent(in) :: V
-		integer :: i
-		Esperanza = 0
-		do i= lbound(V,1), ubound(V,1)
-			Esperanza = Esperanza + V(i)
-		end do
-		Esperanza = Esperanza/(ubound(V,1))
+		Esperanza = sum(V)/ubound(V,1)
 	end function
 
 	real(16) function Varianza(V)
