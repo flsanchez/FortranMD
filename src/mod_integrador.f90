@@ -45,7 +45,7 @@ module integrador
 					vector(i,k) = vector(i,k) + delta*yi
 				enddo
 				! q e y quedan igual
-				do j = 1, N
+				do j = i+1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
 					yij2 = DistanciaCuad(vector,i,j,L,1)
 					!V_aux = V*Valor_LUT(LUT,qij2+yij2)
@@ -55,12 +55,14 @@ module integrador
 						yi = vector(i,k-3)
 						yj = vector(j,k-3)
 						vector(i,k) = vector(i,k) - delta*(yi-yj)*V_aux
+						vector(j,k) = vector(j,k) + delta*(yi-yj)*V_aux
 					enddo
 					! para p
 					do k = 10, 12
 						qi = vector(i,k-9)
 						qj = vector(j,k-9)
 						vector(i,k) = vector(i,k) + delta*(qi-qj)*V_aux
+						vector(j,k) = vector(j,k) - delta*(qi-qj)*V_aux
 				enddo
 			enddo
 		end do
@@ -91,7 +93,7 @@ module integrador
 					vector(i,k) = vector(i,k) + delta*pi
 				enddo
 				! x y p quedan igual
-				do j = 1, N
+				do j = i+1,N
 					xij2 = DistanciaCuad(vector,i,j,L,2)
 					pij2 = DistanciaCuad(vector,i,j,L,3)
 					!V_aux = V*Valor_LUT(LUT,sqrt(xij2+pij2))
@@ -101,12 +103,15 @@ module integrador
 						pi = vector(i,k+9)
 						pj = vector(j,k+9)
 						vector(i,k) = vector(i,k) - delta*(pi-pj)*V_aux
+						vector(j,k) = vector(j,k) + delta*(pi-pj)*V_aux
 					enddo
 					! para y
 					do k = 4, 6
 						xi = vector(i,k+3)
 						xj = vector(j,k+3)
 						vector(i,k) = vector(i,k) + delta*(xi-xj)*V_aux
+						vector(j,k) = vector(j,k) - delta*(xi-xj)*V_aux
+
 					enddo
 				enddo
 			enddo

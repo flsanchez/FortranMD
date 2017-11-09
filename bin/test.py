@@ -12,14 +12,14 @@ print energia[0:10]
 
 n=100000
 
-"""plt.figure()
+plt.figure()
 plt.plot(range(0,n),q[:n],'b-')
 plt.plot(range(0,n),x[:n],'g-')
 plt.ylabel("Posicion")
 plt.figure()
 plt.plot(range(0,n),p[:n],'r-')
 plt.plot(range(0,n),y[:n],'g-')
-plt.ylabel("Momento")"""
+plt.ylabel("Momento")
 plt.figure()
 plt.plot(q[0:n],p[0:n],"-")
 plt.ylabel("Momento")
