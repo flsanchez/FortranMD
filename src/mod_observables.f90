@@ -51,14 +51,16 @@ module observables
 			real(16) :: minP
 
 			N = ubound(vector, 1)
-			minP = minVal(vector(/i, i = 1, N/,j))
-			deltav = (maxVal(vector(/i, i = 1, N/,j))-minP)/Nbins
+			minP = minVal(vector(1:N,j))
+			! write(*,*) minP, maxVal(vector(1:N,j)),(maxVal(vector(1:N,j))-minP)/(Nbins-1)
+			deltav = (maxVal(vector(1:N,j))-minP)/(Nbins-1)
 			allocate(histo(Nbins))
 			histo = 0
 			do i = 1,N
-				idxHisto = floor((vector(i,j)-minP)/deltav+1)
+				idxHisto = floor((vector(i,j)-minP)/deltav)+1
 				histo(idxHisto) = histo(idxHisto)+1
 			end do
+			histo = histo/N
 			HBoltzmannj = sum(histo*log(histo)*deltav)
 			deallocate(histo)
 		end function

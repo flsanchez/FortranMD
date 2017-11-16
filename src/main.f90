@@ -40,6 +40,7 @@ subroutine Opcion1()
   real(16), dimension(N) :: dy
   real(16), dimension(N) :: energia
   real(16), dimension(N) :: energiaC
+  real(16), dimension(N) :: Hbolt
   integer :: i
   call leer_tablas(LUT,'tabla.txt')
 
@@ -70,11 +71,12 @@ subroutine Opcion1()
     dy(i) = vector(2,4)-vector(1,4)
     energia(i) = EnergiaCinetica(vector) + EnergiaPotencial(vector,L,LUT,V)
     energiaC(i) = EnergiaCinetica(vector)
+    hbolt(i) = HBoltzmannj(vector,2,10)
   end do
 
   open(unit = 100, file = "choque.txt")
   do i = 1,N
-    write(100,*) dq(i),";",dp(i),";",dx(i),";",dy(i),";",energia(i),";",energiaC(i)
+    write(100,*) dq(i),";",dp(i),";",dx(i),";",dy(i),";",energia(i),";",energiaC(i),";",hbolt(i)
   enddo
   close(unit = 100)
 end subroutine

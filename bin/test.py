@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 name = "choque.txt"
 
-q, p, x,y,energia,energiaC = np.loadtxt(name, unpack = True, delimiter = ';')
+q, p, x,y,energia,energiaC,H = np.loadtxt(name, unpack = True, delimiter = ';')
 print p[0:10]
 print y[0:10]
 print q[0:10]
@@ -30,4 +30,6 @@ plt.plot(energia[0:n],'g')
 plt.ylabel("Energia")
 plt.ylim((0.4,.6))
 """plt.legend(["Total", "Cinetica"])"""
+plt.figure()
+plt.plot(H,'b')
 plt.show()
