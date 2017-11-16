@@ -10,7 +10,7 @@ print q[0:10]
 print x[0:10]
 print energia[0:10]
 
-n=100000
+n=50000
 
 plt.figure()
 plt.plot(range(0,n),q[:n],'b-')
@@ -26,7 +26,8 @@ plt.ylabel("Momento")
 plt.xlabel("Posicion")
 plt.figure()
 plt.plot(energia[0:n],'g')
-plt.plot(energiaC[0:n],'r')
+"""plt.plot(energiaC[0:n],'r')"""
 plt.ylabel("Energia")
-plt.legend(["Total", "Cinetica"])
+plt.ylim((0.4,.6))
+"""plt.legend(["Total", "Cinetica"])"""
 plt.show()
