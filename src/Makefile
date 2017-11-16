@@ -10,7 +10,7 @@ MODS = $(wildcard mod_*.f90)
 MODS_OBJ = $(patsubst %.f90, ../bin/%_f90.o, $(MODS))
 
 
-F90FLAGS = -O3 -Wall -Wno-tabs
+F90FLAGS = -O3
 EXECUTABLE = ../bin/md.e
 
 default: help

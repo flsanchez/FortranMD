@@ -3,6 +3,7 @@ program menu
   character(len=10), dimension(:), allocatable :: args
   integer(4) :: i
   N_args = IARGC()
+  write (*,*) N_args
   allocate(args(N_args))
   ! Argumentos pasados por consola
   do i=1,N_args
@@ -24,13 +25,13 @@ subroutine Opcion1()
   use tablas
   real(16), parameter :: m_pi = 3.14159265359
   real(16), parameter :: h_barra = 25.0/47
-  integer, parameter :: N = 100000    ! Cantidad de pasos
+  integer, parameter :: N = 50000    ! Cantidad de pasos
   ! Choque frontal (unidimensional) de 2 particulas
   real(16) :: L = 1000    ! Caja muy grande, donde las imagenes no interactuan
   real(16), dimension(2,12) :: vector   ! q,y,x,p
   real(16), dimension(:), allocatable :: LUT
   real(16) :: delta= 1E-4
-  real(16) :: w = 1E2 ! Parametro magico del integrador
+  real(16) :: w = 1E3 ! Parametro magico del integrador
   real(16), dimension(4,4) :: matriz
   real(16) :: V
   real(16), dimension(N) :: dq
@@ -40,7 +41,7 @@ subroutine Opcion1()
   real(16), dimension(N) :: energia
   real(16), dimension(N) :: energiaC
   integer :: i
-  !call leer_tablas(LUT,'tabla.txt')
+  call leer_tablas(LUT,'tabla.txt')
 
   matriz = matrizhc(2*delta*w)
 
@@ -108,7 +109,7 @@ subroutine EspacioFases(args)  ! Aun no esta terminada (de hecho, no tiene nada)
   read(args(1), *) p_min
   read(args(2), *) p_max
   read(args(3), *) Cant_ps
-
+  call leer_tablas(LUT,'tabla.txt')
   p_step = (p_max-p_min)/(Cant_ps-1)
 
   matriz = matrizhc(2*delta*w)

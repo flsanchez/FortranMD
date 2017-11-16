@@ -48,8 +48,8 @@ module integrador
 				do j = i+1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
 					yij2 = DistanciaCuad(vector,i,j,L,1)
-					!V_aux = V*Valor_LUT(LUT,qij2+yij2)
-					V_aux = V*exp(-0.5*(qij2+yij2))
+					V_aux = V*Valor_LUT_der(LUT,0.5*(qij2+yij2))
+					!V_aux = V*exp(-0.5*(qij2+yij2))
 					! para x
 					do k = 7, 9
 						yi = vector(i,k-3)
@@ -96,8 +96,8 @@ module integrador
 				do j = i+1,N
 					xij2 = DistanciaCuad(vector,i,j,L,2)
 					pij2 = DistanciaCuad(vector,i,j,L,3)
-					!V_aux = V*Valor_LUT(LUT,sqrt(xij2+pij2))
-					V_aux = V*exp(-0.5*(xij2+pij2))
+					V_aux = V*Valor_LUT_der(LUT,0.5*(xij2+pij2))
+					!V_aux = V*exp(-0.5*(xij2+pij2))
 					! para q
 					do k = 1, 3
 						pi = vector(i,k+9)
