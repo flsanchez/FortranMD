@@ -98,6 +98,21 @@ contains
 		end if
 	end function
 
+	
+	! real(16) function Valor_LUT_der(LUT,s)
+	! 	real(16), intent(in) :: s
+	! 	real(16), dimension(:), intent(in) :: LUT
+	! 	integer :: i
+	! 	real(16) :: r_step
+	! 	real(16) :: r_max = 8
+	! 	if (s>=r_max) then
+	! 		Valor_LUT_der=0
+	! 	else
+	! 		r_step = r_max/(ubound(LUT,1)-1)
+	! 		i = floor(s/r_step)
+	! 		Valor_LUT_der = (LUT(i+2)-LUT(i+1))*(s/r_step-i)+LUT(i+1)+ 3.35575200841245E-04
+	! 	end if
+	! end function
 
 	real(16) function Valor_LUT_der(LUT,s)
 		real(16), intent(in) :: s
@@ -105,34 +120,19 @@ contains
 		integer :: i
 		real(16) :: r_step
 		real(16) :: r_max = 8
+		real(16) :: r_spline = 6
 		if (s>=r_max) then
 			Valor_LUT_der=0
 		else
-			r_step = r_max/(ubound(LUT,1)-1)
-			i = floor(s/r_step)
-			Valor_LUT_der = (LUT(i+2)-LUT(i+1))*(s/r_step-i)+LUT(i+1)+ 3.35575200841245E-04
+			if(s>=r_spline) then
+				Valor_LUT_der = 0.5*Valor_LUT(LUT,r_spline)*(r_max-s)
+			else
+				r_step = r_max/(ubound(LUT,1)-1)
+				i = floor(s/r_step)
+				Valor_LUT_der = (LUT(i+2)-LUT(i+1))*(s/r_step-i)+LUT(i+1)
+			end if
 		end if
 	end function
-
-	! real(16) function Valor_LUT_der(LUT,s)
-	! 	real(16), intent(in) :: s
-	! 	real(16), dimension(:), intent(in) :: LUT
-	! 	integer :: i
-	! 	real(16) :: r_step
-	! 	real(16) :: r_max = 8
-	! 	real(16) :: r_spline = 6
-	! 	if (s>=r_max) then
-	! 		Valor_LUT_der=0
-	! 	else
-	! 		if(s>=r_spline) then
-	! 			Valor_LUT_der = 0.5*Valor_LUT(LUT,r_spline)*(r_max-s)
-	! 		else
-	! 			r_step = r_max/(ubound(LUT,1)-1)
-	! 			i = floor(s/r_step)
-	! 			Valor_LUT_der = (LUT(i+2)-LUT(i+1))*(s/r_step-i)+LUT(i+1)
-	! 		end if
-	! 	end if
-	! end function
 
 
 !!! ------------------------- !!!

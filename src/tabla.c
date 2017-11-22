@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-/*
+
 double* LUT_exp(int N){
   double step = 8.0/(N-1);
   int m= floor(6.0/step);
@@ -22,8 +22,8 @@ double* LUT_exp(int N){
   }
   return res;
 }
-*/
 
+/*
 double* LUT_exp(int N){ // LUT sin spline, reducida para que se anule en r=8
   double step = 8.0/(N-1);
   int i = 1;
@@ -37,7 +37,7 @@ double* LUT_exp(int N){ // LUT sin spline, reducida para que se anule en r=8
   }
   return res;
 }
-
+*/
 
 int guardar_tablas(double *LUT, int N){
   FILE* fp = fopen("tabla.txt", "w");

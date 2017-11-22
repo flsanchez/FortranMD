@@ -3,7 +3,6 @@ program menu
   character(len=10), dimension(:), allocatable :: args
   integer(4) :: i
   N_args = IARGC()
-  write (*,*) N_args
   allocate(args(N_args))
   ! Argumentos pasados por consola
   do i=1,N_args
@@ -12,7 +11,7 @@ program menu
   if (N_args==0) then
     call Opcion1
   end if
-  if (N_args==3) then
+  if (N_args==4) then
     call EspacioFases(args)
   end if
   deallocate(args)
@@ -90,12 +89,13 @@ subroutine EspacioFases(args)  ! Aun no esta terminada (de hecho, no tiene nada)
   real(16), parameter :: m_pi = 3.14159265359
   real(16), parameter :: h_barra = 25.0/47
   character(len=12), dimension(3), intent(in) :: args
+  character(len=13) :: archivo
   real(8) :: p_min
   real(8) :: p_max
   real(8) :: p_step
   integer(4) :: Cant_ps
   ! Variables del problema
-  real(16), dimension(2,12) :: vector   ! q,y,x,p
+  real(16), dimension(2,12) :: vector = 0   ! q,y,x,p
   real(16), dimension(:), allocatable :: LUT
   real(16), parameter :: L = 100
   real(16) :: delta= 1E-4
@@ -106,37 +106,30 @@ subroutine EspacioFases(args)  ! Aun no esta terminada (de hecho, no tiene nada)
   real(16), dimension(:), allocatable :: dp
   integer(4) :: i
   integer(8) :: j
-  integer(8) :: N = 0
+  integer(8) :: k
+  integer(8) :: N = 100000 ! Estimacion de la cantidad de pasos (de tanto correrlo)
   ! Asignacion argumentos
   read(args(1), *) p_min
   read(args(2), *) p_max
   read(args(3), *) Cant_ps
   call leer_tablas(LUT,'tabla.txt')
   p_step = (p_max-p_min)/(Cant_ps-1)
+  write(*,*) p_min,p_max, Cant_ps, p_step
 
   matriz = matrizhc(2*delta*w)
-  allocate(dq(1))
-! ESTIMO LA CANTIDAD DE PASOS MAXIMA
-! Coordenadas q,p
-  vector(1,1) = L/2
-  vector(2,1) = L/2+dq(1)
-  vector(1,10) = -p_min     ! Esta es la velocidad de la particula disparada, la otra esta quieta
-! Coordenadas x,y
-  vector(1,7) = L/2
-  vector(2,7) = L/2+dq(1)
-  vector(1,4) = -p_min
-  do while((dq(1) .le. 3.0) .and. (dq(1) .ge. -3.0))
-    call avanzar(vector,delta,V,L,LUT,matriz)
-    dq(1) = vector(2,7)-vector(1,7)
-    N = N+1
-  end do
 
-  deallocate(dq)
   allocate(dq(N),dp(N))
 
   do i=0,Cant_ps-1
-      dp(1) = p_min+p_step*i
+      dp(1) = -(p_min+p_step*i)
+      write(archivo,"(A7,I2,A4)") "choque_", i,".txt"
+      write(*,*) -dp(1)
       dq(1) = 3.0
+      if(dp(1)>0) then  ! Si el impulso va para el otro lado,
+        dq(1) = -dq(1)  ! pongo la particula para el otro lado
+      end if
+    ! Reseteo el vector
+      vector(:,:) = 0
     ! Coordenadas q,p
       vector(1,1) = L/2
       vector(2,1) = L/2+dq(1)
@@ -153,7 +146,10 @@ subroutine EspacioFases(args)  ! Aun no esta terminada (de hecho, no tiene nada)
         dq(j) = vector(2,7)-vector(1,7)
         dp(j) = vector(2,4)-vector(1,4)
       end do
-    ! Escribo la data en el archivo de salida (despues lo hago)
+    open(unit = 100, file = archivo)
+    do k = 1,j
+      write(100,*) dq(k),";",dp(k)
+    enddo
+    close(unit = 100)
   end do
-
 end subroutine
