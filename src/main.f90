@@ -11,11 +11,19 @@ program menu
   if (N_args==0) then
     call Opcion1
   end if
-  if (N_args==4) then
+  if (N_args==98347924) then
     call EspacioFases(args)
+  end if
+  if(args(1)=="i") then
+    call main_inicializar(args)
   end if
   deallocate(args)
 end program
+
+
+!!! --------------------------------------------------- !!!
+!!! ----------------> SUBRUTINAS <--------------------- !!!
+!!! --------------------------------------------------- !!!
 
 subroutine Opcion1()
   use observables
@@ -88,7 +96,7 @@ subroutine EspacioFases(args)  ! Aun no esta terminada (de hecho, no tiene nada)
 
   real(16), parameter :: m_pi = 3.14159265359
   real(16), parameter :: h_barra = 25.0/47
-  character(len=12), dimension(3), intent(in) :: args
+  character(len=10), dimension(3), intent(in) :: args
   character(len=13) :: archivo
   real(8) :: p_min
   real(8) :: p_max
@@ -152,4 +160,43 @@ subroutine EspacioFases(args)  ! Aun no esta terminada (de hecho, no tiene nada)
     enddo
     close(unit = 100)
   end do
+end subroutine
+
+subroutine main_inicializar(args)
+  use observables
+  use funciones
+  use integrador
+  use tablas
+  use init
+
+  character(len=10), dimension(4) :: args
+  integer(4) :: N
+  real(16) :: T
+  real(16) :: rho
+  real(16) :: L
+  real(16), dimension(:,:), allocatable :: vector
+  integer(4) :: i
+
+  read(args(2), *) N
+  read(args(3), *) T
+  read(args(4), *) rho
+  write(*,*) N,T,rho
+  L = (N/rho)**(1.0/3)
+  allocate(vector(N,12))
+
+  call inicializar(vector,T,L)
+
+  open(unit=100, file ="init.txt")
+  do i=1,N
+    !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
+    write(100,*) vector(i,1:6)
+  end do
+  close(100)
+  open(unit=100, file ="gauss.txt")
+  do i=1,100000
+    !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
+    write(100,*) Rand_Gauss(T)
+  end do
+  close(100)
+
 end subroutine
