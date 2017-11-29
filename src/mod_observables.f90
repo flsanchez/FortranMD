@@ -30,7 +30,8 @@ module observables
 			EnergiaPotencial = 0
 			do i=2,ubound(vector,1)
 				do j=1,(i-1)
-					EnergiaPotencial = EnergiaPotencial + Valor_LUT(LUT,(DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3))/2)
+					EnergiaPotencial = EnergiaPotencial + Valor_LUT_der(LUT,(DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3))*0.5)
+					!EnergiaPotencial = EnergiaPotencial + exp(-(DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3))/2)
 				end do
 			end do
 			EnergiaPotencial = V*EnergiaPotencial
@@ -50,7 +51,7 @@ module observables
 			integer :: idxHisto
 			real(16) :: minP
 
-			N = ubound(vector, 1)
+			N = ubound(vector, dim=1)
 			minP = minVal(vector(1:N,j))
 			! write(*,*) minP, maxVal(vector(1:N,j)),(maxVal(vector(1:N,j))-minP)/(Nbins-1)
 			deltav = (maxVal(vector(1:N,j))-minP)/(Nbins-1)
@@ -61,7 +62,7 @@ module observables
 				histo(idxHisto) = histo(idxHisto)+1
 			end do
 			histo = histo/N
-			HBoltzmannj = sum(histo*log(histo)*deltav)
+			HBoltzmannj = sum(histo*log(histo)*deltav,mask=histo.gt.0)
 			deallocate(histo)
 		end function
 

@@ -23,8 +23,6 @@ contains
 		m = N**(1.0/3)
 		a = L/m
 
-		write(*,*) m,a
-
 		do x=1,m
 			do y=1,m
 				do z=1,m

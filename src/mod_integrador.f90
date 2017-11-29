@@ -42,7 +42,7 @@ module integrador
 				! para x
 				do k = 7, 9
 					yi = vector(i,k-3)
-					vector(i,k) = vector(i,k) + delta*yi
+					vector(i,k) = CCperiod(vector(i,k) + delta*yi,L)
 				enddo
 				! q e y quedan igual
 				do j = i+1, N
@@ -54,8 +54,8 @@ module integrador
 					do k = 7, 9
 						yi = vector(i,k-3)
 						yj = vector(j,k-3)
-						vector(i,k) = vector(i,k) - delta*(yi-yj)*V_aux
-						vector(j,k) = vector(j,k) + delta*(yi-yj)*V_aux
+						vector(i,k) = CCperiod(vector(i,k) - delta*(yi-yj)*V_aux,L)
+						vector(j,k) = CCperiod(vector(j,k) + delta*(yi-yj)*V_aux,L)
 					enddo
 					! para p
 					do k = 10, 12
@@ -90,7 +90,7 @@ module integrador
 			do i = 1, N
 				do k = 1, 3
 					pi = vector(i,k+9)
-					vector(i,k) = vector(i,k) + delta*pi
+					vector(i,k) = CCperiod(vector(i,k) + delta*pi,L)
 				enddo
 				! x y p quedan igual
 				do j = i+1,N
@@ -102,8 +102,8 @@ module integrador
 					do k = 1, 3
 						pi = vector(i,k+9)
 						pj = vector(j,k+9)
-						vector(i,k) = vector(i,k) - delta*(pi-pj)*V_aux
-						vector(j,k) = vector(j,k) + delta*(pi-pj)*V_aux
+						vector(i,k) = CCperiod(vector(i,k) - delta*(pi-pj)*V_aux,L)
+						vector(j,k) = CCperiod(vector(j,k) + delta*(pi-pj)*V_aux,L)
 					enddo
 					! para y
 					do k = 4, 6
@@ -117,10 +117,11 @@ module integrador
 			enddo
 		end subroutine
 
-	  subroutine TransformacionHc(vector,matrizhc)
+	  subroutine TransformacionHc(vector,matrizhc,Lado)
 		real(16), dimension(:,:), intent(inout) :: vector
 	  real(16), dimension(12) :: nvector
 	  real(16), dimension(4,4), intent(in) :: matrizhc
+		real(16), intent(in) :: Lado
 	  integer :: i
 	  integer :: j
 	  integer :: k
@@ -131,9 +132,9 @@ module integrador
 			nvector(:)=0
 	    do l=1,3
 	      do k=1,4
-	        nvector(l+0)=nvector(l+0)+0.5*matrizhc(k,1)*vector(i,l+3*(k-1))
+	        nvector(l+0)=CCperiod(nvector(l+0)+0.5*matrizhc(k,1)*vector(i,l+3*(k-1)),Lado)
 	        nvector(l+3)=nvector(l+3)+0.5*matrizhc(k,2)*vector(i,l+3*(k-1))
-	        nvector(l+6)=nvector(l+6)+0.5*matrizhc(k,3)*vector(i,l+3*(k-1))
+	        nvector(l+6)=CCperiod(nvector(l+6)+0.5*matrizhc(k,3)*vector(i,l+3*(k-1)),Lado)
 	        nvector(l+9)=nvector(l+9)+0.5*matrizhc(k,4)*vector(i,l+3*(k-1))
 	      end do
 	    end do
@@ -189,7 +190,7 @@ module integrador
 		real(16), intent(in) :: L
 		call TransformacionHa(vector,delta*0.5,V,L,LUT)
 	  call TransformacionHb(vector,delta*0.5,V,L,LUT)
-		call TransformacionHc(vector,matriz)
+		call TransformacionHc(vector,matriz,L)
 		call TransformacionHb(vector,delta*0.5,V,L,LUT)
 		call TransformacionHa(vector,delta*0.5,V,L,LUT)
 	end subroutine

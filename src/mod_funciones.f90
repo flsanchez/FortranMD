@@ -4,6 +4,7 @@ implicit none
 private
 
 	public :: CdCP
+	public :: CCperiod
 	public :: DistanciaCuad
 	public :: RestaFases
 	public :: NormaCuadrado
@@ -34,6 +35,20 @@ contains
 			end if
 		end if
 	end subroutine
+
+	real(16) function CCperiod(d,L)
+		real(16), intent(in) :: L
+		real(16), intent(in) :: d
+			if(d>L) then
+				CCperiod = d-L
+			else
+				if(d<0) then
+					CCperiod = d+L
+				else
+					CCperiod = d
+				end if
+			end if
+	end function
 
 	! El vector es Coordenada x Particula, vector(k,i) es la coordenada k de la i-esima particula
 
@@ -98,7 +113,7 @@ contains
 		end if
 	end function
 
-	
+
 	! real(16) function Valor_LUT_der(LUT,s)
 	! 	real(16), intent(in) :: s
 	! 	real(16), dimension(:), intent(in) :: LUT

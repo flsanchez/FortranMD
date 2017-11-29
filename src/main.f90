@@ -17,6 +17,9 @@ program menu
   if(args(1)=="i") then
     call main_inicializar(args)
   end if
+  if(args(1)=="h") then
+    call main_hboltzmann(args)
+  end if
   deallocate(args)
 end program
 
@@ -201,4 +204,62 @@ subroutine main_inicializar(args)
   ! end do
   close(100)
 
+end subroutine
+
+subroutine main_hboltzmann(args)
+  use observables
+  use funciones
+  use integrador
+  use tablas
+  use init
+  use grabar
+
+  character(len=10), dimension(4) :: args
+  real(16), dimension(:,:), allocatable :: vector
+
+  integer(4) :: N
+  real(16) :: T
+  real(16) :: rho
+  real(16) :: L
+
+  real(16), dimension(:), allocatable :: LUT
+  real(16) :: delta= 1E-4
+  real(16) :: w = 1E2 ! Parametro magico del integrador
+  real(16), dimension(4,4) :: matriz
+  real(16) :: V = 10
+
+  integer :: niter = 10000
+  integer(4) :: i
+  integer(4) :: BinsHBoltzmann = 100
+  real(16) :: H
+
+  call leer_tablas(LUT,'tabla.txt')
+  matriz = matrizhc(2*delta*w)
+
+  read(args(2), *) N
+  read(args(3), *) T
+  read(args(4), *) rho
+  write(*,*) N,T,rho
+  L = (N/rho)**(1.0/3)
+  allocate(vector(N,12))
+
+  call inicializar(vector,T,L)
+
+  open(unit = 100, file="data.txt")
+  open(unit = 101, file="posiciones.xyz")
+  ! h = HBoltzmann(vector,BinsHBoltzmann)
+  ! write(100,*) h
+  ! write(*,*) h
+
+  do i = 1,niter
+    call avanzar(vector,delta,V,L,LUT,matriz)
+    if(mod(i,100) == 0) then
+      write(*,*) "Paso: ",i
+    end if
+    write(100,*) HBoltzmann(vector,BinsHBoltzmann),";",EnergiaCinetica(vector),";",EnergiaPotencial(vector,L,LUT,V)
+    call grabarXYZ(vector, 101, L)
+  end do
+
+  close(100)
+  close(101)
 end subroutine
