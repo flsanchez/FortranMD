@@ -168,6 +168,7 @@ subroutine main_inicializar(args)
   use integrador
   use tablas
   use init
+  use grabar
 
   character(len=10), dimension(4) :: args
   integer(4) :: N
@@ -186,17 +187,18 @@ subroutine main_inicializar(args)
 
   call inicializar(vector,T,L)
 
-  open(unit=100, file ="init.txt")
-  do i=1,N
-    !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
-    write(100,*) vector(i,1:6)
-  end do
-  close(100)
-  open(unit=100, file ="gauss.txt")
-  do i=1,100000
-    !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
-    write(100,*) Rand_Gauss(T)
-  end do
+  open(unit=100, file ="init.xyz")
+  call grabarXYZ(vector,100,L)
+  ! do i=1,N
+  !   !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
+  !   write(100,*) vector(i,1:6)
+  ! end do
+  ! close(100)
+  ! open(unit=100, file ="gauss.txt")
+  ! do i=1,100000
+  !   !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
+  !   write(100,*) Rand_Gauss(T)
+  ! end do
   close(100)
 
 end subroutine

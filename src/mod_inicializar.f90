@@ -29,12 +29,12 @@ contains
 			do y=1,m
 				do z=1,m
 					i = x+(y-1)*m+m*m*(z-1);
-					vector(i,1) = (a/2) + x*a;
-					vector(i,2) = (a/2) + y*a;
-					vector(i,3) = (a/2) + z*a;
-					vector(i,7) = (a/2) + x*a;
-					vector(i,8) = (a/2) + y*a;
-					vector(i,9) = (a/2) + z*a;
+					vector(i,1) = (a/2) + (x-1)*a;
+					vector(i,2) = (a/2) + (y-1)*a;
+					vector(i,3) = (a/2) + (z-1)*a;
+					vector(i,7) = (a/2) + (x-1)*a;
+					vector(i,8) = (a/2) + (y-1)*a;
+					vector(i,9) = (a/2) + (z-1)*a;
 				end do
 			end do
 		end do
