@@ -8,10 +8,10 @@ program menu
   do i=1,N_args
     CALL getarg(i,args(i))
   end do
-  if (N_args==0) then
+  if (args(1)=="o1") then
     call Opcion1
   end if
-  if (N_args==98347924) then
+  if (args(1)=="f") then
     call EspacioFases(args)
   end if
   if(args(1)=="i") then
@@ -222,6 +222,8 @@ subroutine main_hboltzmann(args)
   real(16) :: rho
   real(16) :: L
 
+  character(len=200) :: tuvieja
+
   real(16), dimension(:), allocatable :: LUT
   real(16) :: delta= 1E-4
   real(16) :: w = 1E2 ! Parametro magico del integrador
@@ -256,7 +258,8 @@ subroutine main_hboltzmann(args)
     if(mod(i,100) == 0) then
       write(*,*) "Paso: ",i
     end if
-    write(100,*) HBoltzmann(vector,BinsHBoltzmann),";",EnergiaCinetica(vector),";",EnergiaPotencial(vector,L,LUT,V)
+    ! HBoltzmann(vector,BinsHBoltzmann),";",
+    write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
     call grabarXYZ(vector, 101, L)
   end do
 

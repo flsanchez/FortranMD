@@ -5,6 +5,7 @@ private
 
 	public :: CdCP
 	public :: CCperiod
+	public :: CCperiod2
 	public :: DistanciaCuad
 	public :: RestaFases
 	public :: NormaCuadrado
@@ -39,16 +40,28 @@ contains
 	real(16) function CCperiod(d,L)
 		real(16), intent(in) :: L
 		real(16), intent(in) :: d
-			if(d>L) then
-				CCperiod = d-L
-			else
-				if(d<0) then
-					CCperiod = d+L
-				else
-					CCperiod = d
-				end if
-			end if
+		CCperiod = d - L*floor(d/L)
 	end function
+
+	subroutine CCperiod2(vector,L)
+		real(16), dimension(:,:), intent(inout) :: vector
+		real(16), intent(in) :: L
+		integer(4) :: i
+		integer(4) :: j
+		do i=1,ubound(vector,1)
+			do j=1,3
+				if(vector(i,j)<0 .and. vector(i,j+6)<0) then
+					vector(i,j) = vector(i,j)+L
+					vector(i,j+6) = vector(i,j+6)+L
+				else
+					if (vector(i,j)>L .and. vector(i,j+6)>L) then
+						vector(i,j) = vector(i,j)-L
+						vector(i,j+6) = vector(i,j+6)-L
+					end if
+				end if
+			end do
+		end do
+	end subroutine
 
 	! El vector es Coordenada x Particula, vector(k,i) es la coordenada k de la i-esima particula
 
