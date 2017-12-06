@@ -11,7 +11,7 @@ module integrador
 		public :: TransformacionHc
 		public :: matrizhc
 		public :: avanzar
-		!vector  (q,y,x,p)  [12,N]
+		!vector  (q,y,x,p)  [N,12]
 
 	contains
 		! vector(i,j): i es numero de particula (1 <= i <= N),
@@ -59,10 +59,14 @@ module integrador
 					enddo
 					! para p
 					do k = 10, 12
-						qi = vector(i,k-9)
-						qj = vector(j,k-9)
-						vector(i,k) = vector(i,k) + delta*(qi-qj)*V_aux
-						vector(j,k) = vector(j,k) - delta*(qi-qj)*V_aux
+						qi = vector(i,k-9)-vector(j,k-9)
+						call CdCP(qi,L)
+						vector(i,k) = vector(i,k) + delta*qi*V_aux
+						vector(j,k) = vector(j,k) - delta*qi*V_aux
+						! qi = vector(i,k-9)
+						! qj = vector(j,k-9)
+						! vector(i,k) = vector(i,k) + delta*(qi-qj)*V_aux
+						! vector(j,k) = vector(j,k) - delta*(qi-qj)*V_aux
 				enddo
 			enddo
 		end do
@@ -107,11 +111,14 @@ module integrador
 					enddo
 					! para y
 					do k = 4, 6
-						xi = vector(i,k+3)
-						xj = vector(j,k+3)
-						vector(i,k) = vector(i,k) + delta*(xi-xj)*V_aux
-						vector(j,k) = vector(j,k) - delta*(xi-xj)*V_aux
-
+						xi = vector(i,k+3)-vector(j,k+3)
+						call CdCP(xi,L)
+						vector(i,k) = vector(i,k) + delta*xi*V_aux
+						vector(j,k) = vector(j,k) - delta*xi*V_aux
+						! xi = vector(i,k+3)
+						! xj = vector(j,k+3)
+						! vector(i,k) = vector(i,k) + delta*(xi-xj)*V_aux
+						! vector(j,k) = vector(j,k) - delta*(xi-xj)*V_aux
 					enddo
 				enddo
 			enddo

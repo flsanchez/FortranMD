@@ -29,9 +29,7 @@ contains
 		if (d>0.5*L) then
 			d = d-L
 		else
-			if (d>-0.5*L) then
-				d = d
-			else
+			if (d<-0.5*L) then
 				d = d+L
 			end if
 		end if
