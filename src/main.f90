@@ -20,6 +20,9 @@ program menu
   if(args(1)=="h") then
     call main_hboltzmann(args)
   end if
+  if(args(1)=="d") then
+    call main_debug(args)
+  end if
   deallocate(args)
 end program
 
@@ -37,7 +40,7 @@ subroutine Opcion1()
   real(16), parameter :: h_barra = 25.0/47
   integer, parameter :: N = 50000    ! Cantidad de pasos
   ! Choque frontal (unidimensional) de 2 particulas
-  real(16) :: L = 10    ! Caja muy grande, donde las imagenes no interactuan
+  real(16) :: L = 10000    ! Caja muy grande, donde las imagenes no interactuan
   real(16), dimension(3,12) :: vector   ! q,y,x,p
   real(16), dimension(:), allocatable :: LUT
   real(16) :: delta= 1E-4
@@ -241,6 +244,8 @@ subroutine main_hboltzmann(args)
 
   integer :: niter = 10000
   integer(4) :: i
+  integer(4) :: j
+  real(16), dimension(6) :: vel
   integer(4) :: BinsHBoltzmann = 100
   real(16) :: H
 
@@ -258,20 +263,108 @@ subroutine main_hboltzmann(args)
 
   open(unit = 100, file="data.txt")
   open(unit = 101, file="posiciones.xyz")
+  open(unit = 102, file="momentos.txt")
   ! h = HBoltzmann(vector,BinsHBoltzmann)
   ! write(100,*) h
   ! write(*,*) h
 
   do i = 1,niter
+    do j = 1,3
+      vel(j) = sum(vector(:,j+9))
+      vel(j+3) = sum(vector(:,j+3))
+    enddo
+    write(102,*) vel(1),";",vel(2),";",vel(3),";",vel(4),";",vel(5),";",vel(6)
     call avanzar(vector,delta,V,L,LUT,matriz)
     if(mod(i,100) == 0) then
+      vel = 0
       write(*,*) "Paso: ",i
     end if
     ! HBoltzmann(vector,BinsHBoltzmann),";",
     write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
     call grabarXYZ(vector, 101, L)
+
   end do
 
   close(100)
   close(101)
+  close(102)
+end subroutine
+
+subroutine main_debug(args)
+  use observables
+  use funciones
+  use integrador
+  use tablas
+  use init
+  use grabar
+
+  character(len=10), dimension(4) :: args
+  real(16), dimension(:,:), allocatable :: vector
+
+  integer(4) :: N
+  real(16) :: T
+  real(16) :: rho
+  real(16) :: L
+
+  character(len=200) :: tuvieja
+
+  real(16), dimension(:), allocatable :: LUT
+  real(16) :: delta = 1E-4
+  real(16) :: w = 1E2 ! Parametro magico del integrador
+  real(16), dimension(4,4) :: matriz
+  real(16) :: V = 10
+
+  integer :: niter = 30000
+  integer(4) :: iter
+  integer(4) :: i
+  integer(4) :: j
+  real(16), dimension(6) :: vel
+  integer(4) :: BinsHBoltzmann = 100
+  real(16) :: H
+
+  call init_random_seed(0)
+
+  call leer_tablas(LUT,'tabla.txt')
+  matriz = matrizhc(2*delta*w)
+
+  read(args(2), *) N
+  read(args(3), *) T
+  read(args(4), *) rho
+  write(*,*) N,T,rho
+  L = (N/rho)**(1.0/3)
+  allocate(vector(N,12))
+
+  call inicializar(vector,T,L)
+
+  open(unit = 100, file="data.txt")
+  open(unit = 101, file="posiciones.xyz")
+  open(unit = 102, file="momentos.txt")
+  open(unit = 103, file="debug.txt")
+  ! h = HBoltzmann(vector,BinsHBoltzmann)
+  ! write(100,*) h
+  ! write(*,*) h
+
+  do iter = 1,niter
+    ! do j = 1,3
+    !   vel(j) = sum(vector(:,j+9))
+    !   vel(j+3) = sum(vector(:,j+3))
+    ! enddo
+    ! write(102,*) vel(1),";",vel(2),";",vel(3),";",vel(4),";",vel(5),";",vel(6)
+    call grabarVector(vector,103)
+    call avanzar(vector,delta,V,L,LUT,matriz)
+    if(mod(iter,niter/100) == 0) then
+      write(*,*) "Paso: ",iter
+    end if
+    ! HBoltzmann(vector,BinsHBoltzmann),";",
+    call grabarXYZ(vector, 101, L)
+    write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
+
+  end do
+
+  deallocate(vector)
+  deallocate(LUT)
+  close(100)
+  close(101)
+  close(102)
+  close(103)
 end subroutine

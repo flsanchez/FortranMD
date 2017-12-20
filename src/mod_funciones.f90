@@ -13,6 +13,7 @@ private
 	public :: Valor_LUT_der
 	public :: Esperanza
 	public :: Varianza
+	public :: init_random_seed
 
 contains
 
@@ -182,5 +183,39 @@ contains
 		Varianza = NormaCuadrado(V)/ubound(V,1)-mu*mu
 	end function
 
+	! 0 es leer la semilla, 1 es hacer una nueva random
+
+	subroutine init_random_seed(rw)
+
+				integer, intent(in) :: rw
+	      INTEGER :: i, n, clock
+	      INTEGER, DIMENSION(:), ALLOCATABLE :: seed
+
+	      CALL RANDOM_SEED(size = n)
+	      ALLOCATE(seed(n))
+
+				CALL SYSTEM_CLOCK(COUNT=clock)
+
+				!write(*,*) "seed",clock
+
+	      seed = clock + 37 * (/ (i - 1, i = 1, n) /)
+
+				if(rw .eq. 1) then
+					write(*,*) "GRABANDO SEED..."
+					open(unit = 100, file="seed.txt")
+					write (100, *) seed
+					close(100)
+				else
+					write(*,*) "LEYENDO SEED..."
+					open(unit = 100, file="seed.txt")
+					read (100, *), seed
+					close(100)
+				endif
+
+					CALL RANDOM_SEED(PUT = seed)
+
+	      DEALLOCATE(seed)
+
+	end
 
 end module

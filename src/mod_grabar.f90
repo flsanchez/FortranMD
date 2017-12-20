@@ -4,6 +4,7 @@ implicit none
 private
 
 	public :: grabarXYZ
+	public :: grabarVector
 
 contains
 
@@ -23,4 +24,20 @@ contains
       write(unit,"(A2,3F8.5)") "N ",vector(i,1:3)/L*s
     end do
   end subroutine
+
+	subroutine grabarVector(vector,unit)
+		integer :: i
+		integer :: j
+		integer, intent(in) :: unit
+		real(16), dimension(:,:), intent(in) :: vector
+
+		do i = 1,ubound(vector,dim=1)
+			do j = 1,ubound(vector,dim=2)
+				write(103,"(f16.8A)",advance='no') vector(i,j),','
+			enddo
+			write(103,"(A)",advance='no') ";"
+		enddo
+		write(103,*)
+	end subroutine
+
 end module

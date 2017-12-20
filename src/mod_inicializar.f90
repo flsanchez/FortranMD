@@ -46,17 +46,23 @@ contains
 		vector(:,5) = vector(:,5) - sum(vector(:,5))/N
 		vector(:,6) = vector(:,6) - sum(vector(:,6))/N
 		vector(:,10:12) = vector(:,4:6)
+		!write(*,*) vector(1,4:6)
 	end subroutine
 
 
 
 	real(16) function Rand_Gauss(T)
 		real(16), intent(in) :: T
-	  integer(4) ::  repe = 24
+	  integer(4) :: repe = 24
+		real(16), dimension(:), allocatable :: randomVel
 	  real(16) :: s
 		integer :: i
+		allocate(randomVel(repe))
+		CALL RANDOM_NUMBER(randomVel)
 		s = sqrt(12*T/repe);  ! s es la normalizacion EPS = 1
-		Rand_Gauss = sum((/ (rand()-0.5, i=1,repe) /))*s
+		! Rand_Gauss = sum((/ (rand()-0.5, i=1,repe) /))*s
+		Rand_Gauss = sum(randomVel-0.5)*s
+		deallocate(randomVel)
 	end function
 
 end module
