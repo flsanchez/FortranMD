@@ -33,11 +33,11 @@ contains
 
 		do i = 1,ubound(vector,dim=1)
 			do j = 1,ubound(vector,dim=2)
-				write(103,"(f16.8A)",advance='no') vector(i,j),','
+				write(unit, "(f16.8A)", advance='no') vector(i,j),','
 			enddo
-			write(103,"(A)",advance='no') ";"
+			write(unit, "(A)", advance='no') ";"
 		enddo
-		write(103,*)
+		write(unit,*)
 	end subroutine
 
 end module

@@ -77,7 +77,7 @@ contains
 		integer(4) :: m = 0
 		if (k==1 .or. k==3) then   ! Es un impulso, no hay CdCP
 			m = 3*k
-			DistanciaCuad = sum((vector(i,m:m+3)-vector(j,m:m+3))**2)
+			DistanciaCuad = sum((vector(i,m+1:m+3)-vector(j,m+1:m+3))**2)
 		else  ! Es una posicion, tengo que aplicar CdCP
 			DistanciaCuad = 0
 			do m=1,3

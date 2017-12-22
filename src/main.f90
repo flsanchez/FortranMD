@@ -340,6 +340,7 @@ subroutine main_debug(args)
   open(unit = 101, file="posiciones.xyz")
   open(unit = 102, file="momentos.txt")
   open(unit = 103, file="debug.txt")
+  open(unit = 104, file="interaccion.txt")
   ! h = HBoltzmann(vector,BinsHBoltzmann)
   ! write(100,*) h
   ! write(*,*) h
@@ -350,13 +351,15 @@ subroutine main_debug(args)
     !   vel(j+3) = sum(vector(:,j+3))
     ! enddo
     ! write(102,*) vel(1),";",vel(2),";",vel(3),";",vel(4),";",vel(5),";",vel(6)
-    call grabarVector(vector,103)
+    ! call grabarVector(vector,103)
     call avanzar(vector,delta,V,L,LUT,matriz)
     if(mod(iter,niter/100) == 0) then
       write(*,*) "Paso: ",iter
     end if
     ! HBoltzmann(vector,BinsHBoltzmann),";",
-    call grabarXYZ(vector, 101, L)
+    ! write(104,"(f16.8A)", advance='no') Valor_LUT(LUT,(DistanciaCuad(vector,7,8,L,0)+DistanciaCuad(vector,7,8,L,3))*0.5)*V
+    ! write(104,*)";",DistanciaCuad(vector,7,8,L,0),";",DistanciaCuad(vector,7,8,L,3)
+    ! call grabarXYZ(vector, 101, L)
     write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
 
   end do
