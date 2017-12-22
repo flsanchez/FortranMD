@@ -21,7 +21,7 @@ program menu
     call main_hboltzmann(args)
   end if
   if(args(1)=="d") then
-    call main_debug(args)
+    call main_distribucion(args)
   end if
   deallocate(args)
 end program
@@ -306,8 +306,6 @@ subroutine main_debug(args)
   real(16) :: rho
   real(16) :: L
 
-  character(len=200) :: tuvieja
-
   real(16), dimension(:), allocatable :: LUT
   real(16) :: delta = 1E-4
   real(16) :: w = 1E2 ! Parametro magico del integrador
@@ -322,7 +320,7 @@ subroutine main_debug(args)
   integer(4) :: BinsHBoltzmann = 100
   real(16) :: H
 
-  call init_random_seed(0)
+  call init_random_seed()
 
   call leer_tablas(LUT,'tabla.txt')
   matriz = matrizhc(2*delta*w)
@@ -360,7 +358,7 @@ subroutine main_debug(args)
     ! write(104,"(f16.8A)", advance='no') Valor_LUT(LUT,(DistanciaCuad(vector,7,8,L,0)+DistanciaCuad(vector,7,8,L,3))*0.5)*V
     ! write(104,*)";",DistanciaCuad(vector,7,8,L,0),";",DistanciaCuad(vector,7,8,L,3)
     ! call grabarXYZ(vector, 101, L)
-    write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
+    !write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
 
   end do
 
@@ -370,4 +368,87 @@ subroutine main_debug(args)
   close(101)
   close(102)
   close(103)
+end subroutine
+
+
+
+subroutine main_distribucion(args)
+  use observables
+  use funciones
+  use integrador
+  use tablas
+  use init
+  use grabar
+
+  real(16), parameter :: m_pi = 3.14159265359
+  real(16), parameter :: h_barra = 25.0/47
+  real(16), parameter :: const_Vo = (1.4**2.5)/5
+
+  character(len=10), dimension(4) :: args
+  real(16), dimension(:,:), allocatable :: vector
+
+  ! Variables el problema
+  integer(4) :: N
+  real(16) :: T
+  real(16) :: rho
+  real(16) :: L
+  real(16) :: E
+
+  ! Variables de muestreo
+  integer(4) :: n_term = 500
+  integer(4) :: n_muestras = 30
+  integer(4) :: n_desc = 100
+  integer(4) :: Nbins = 20
+  real(16), dimension(:), allocatable :: distribucion
+
+  ! Gilada
+  real(16), dimension(:), allocatable :: LUT
+  real(16) :: delta = 1E-4
+  real(16) :: w = 1E2 ! Parametro magico del integrador
+  real(16), dimension(4,4) :: matriz
+  real(16) :: V
+  integer(4) :: i
+  integer(4) :: j
+
+  read(args(2), *) N
+  read(args(3), *) T
+  read(args(4), *) L
+  write(*,*) N,T,L
+
+  rho = N/(L**3)
+  V = ((3*m_pi*rho)**(2.0/3.0))*const_Vo
+
+  call init_random_seed()
+
+  call leer_tablas(LUT,'tabla.txt')
+  matriz = matrizhc(2*delta*w)
+
+  allocate(distribucion(Nbins))
+  allocate(vector(N,12))
+  call inicializar(vector,T,L)
+
+  do i = 1,n_term   ! Tiempo de termalizacion
+    call avanzar(vector,delta,V,L,LUT,matriz)
+  end do
+  ! Energia total del sistema, ningun p^2 es mayor que esto
+  E = EnergiaCinetica(vector)+EnergiaPotencial(vector,L,LUT,V)
+  write(*,*) "Energia total = ", E
+
+  distribucion = dist_vels(vector,E/10,Nbins)
+  write(*,*) "Muestra", 1
+  do i = 1,(n_muestras-1)   ! Para cada muestra tengo que descorrelacionar
+    do j = 1,n_desc
+      call avanzar(vector,delta,V,L,LUT,matriz)
+    end do
+    distribucion = distribucion+dist_vels(vector,E/10,Nbins)
+    write(*,*) "Muestra", i+1
+  end do
+  distribucion = distribucion/n_muestras
+
+  ! Guardo la data
+  open(unit = 100, file="distribucion.txt")
+  do i = 1,Nbins
+    write(100,*) distribucion(i)
+  end do
+  close(100)
 end subroutine

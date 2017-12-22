@@ -185,9 +185,9 @@ contains
 
 	! 0 es leer la semilla, 1 es hacer una nueva random
 
-	subroutine init_random_seed(rw)
+	subroutine init_random_seed()
 
-				integer, intent(in) :: rw
+				!integer, intent(in) :: rw
 	      INTEGER :: i, n, clock
 	      INTEGER, DIMENSION(:), ALLOCATABLE :: seed
 
@@ -199,18 +199,18 @@ contains
 				!write(*,*) "seed",clock
 
 	      seed = clock + 37 * (/ (i - 1, i = 1, n) /)
-
-				if(rw .eq. 1) then
-					write(*,*) "GRABANDO SEED..."
-					open(unit = 100, file="seed.txt")
-					write (100, *) seed
-					close(100)
-				else
-					write(*,*) "LEYENDO SEED..."
-					open(unit = 100, file="seed.txt")
-					read (100, *), seed
-					close(100)
-				endif
+				!
+				! if(rw .eq. 1) then
+				! 	write(*,*) "GRABANDO SEED..."
+				! 	open(unit = 100, file="seed.txt")
+				! 	write (100, *) seed
+				! 	close(100)
+				! else
+				! 	write(*,*) "LEYENDO SEED..."
+				! 	open(unit = 100, file="seed.txt")
+				! 	read (100, *), seed
+				! 	close(100)
+				! endif
 
 					CALL RANDOM_SEED(PUT = seed)
 

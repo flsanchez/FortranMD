@@ -10,6 +10,7 @@ module observables
 		public :: EnergiaPotencial
 		public :: HBoltzmannj
 		public :: HBoltzmann
+		public :: dist_vels
 
 	contains
 
@@ -74,6 +75,23 @@ module observables
 			HBoltzmann = 0
 			do j = 10,12
 				HBoltzmann = HBoltzmann + (1.0/3.0)*HBoltzmannj(vector,Nbins,j)
+			end do
+		end function
+
+
+		function dist_vels(vector,E,Nbins)
+			real(16), dimension(:,:), intent(in) :: vector
+			integer, intent(in) :: Nbins
+			real(16), intent(in) :: E
+			real(16), dimension(Nbins) :: dist_vels
+			integer :: i
+			integer :: j
+			real(16) :: delta_p2
+			delta_p2 = E/Nbins
+			dist_vels(:) = 0
+			do i = 1,ubound(vector,1)
+				j = ceiling(sum(vector(i,10:12)**2)/delta_p2)
+				dist_vels(j) = dist_vels(j)+1
 			end do
 		end function
 

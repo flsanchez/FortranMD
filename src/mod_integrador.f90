@@ -28,45 +28,40 @@ module integrador
 			real(16) :: V_aux
 			real(16) :: qij2
 			real(16) :: yij2
-			real(16) :: qi
-			real(16) :: qj
-			real(16) :: yi
-			real(16) :: yj
+			real(16) :: qij
+			!real(16) :: qj
+			real(16) :: yij
+			real(16) :: inc
+			!real(16) :: yj
 			integer :: i ! indice de particula
 			integer :: j ! indice de sumatoria
 			integer :: k ! indice de componente vectorial
 			integer :: N
 			!q,y,x,p
 			N = ubound(vector, dim=1)
+			vector(:,7:9) = vector(:,7:9)+delta*vector(:,4:6)
 			do i = 1, N
 				! para x
-				do k = 7, 9
-					yi = vector(i,k-3)
-					vector(i,k) = vector(i,k) + delta*yi
-				enddo
 				! q e y quedan igual
 				do j = i+1, N
 					qij2 = DistanciaCuad(vector,i,j,L,0)
 					yij2 = DistanciaCuad(vector,i,j,L,1)
 					V_aux = V*Valor_LUT_der(LUT,0.5*(qij2+yij2))
-					!V_aux = V*exp(-0.5*(qij2+yij2))
 					! para x
 					do k = 7, 9
-						yi = vector(i,k-3)
-						yj = vector(j,k-3)
-						vector(i,k) = vector(i,k) - delta*(yi-yj)*V_aux
-						vector(j,k) = vector(j,k) + delta*(yi-yj)*V_aux
+						yij = vector(i,k-3)-vector(j,k-3)
+						inc = delta*yij*V_aux
+						!yj = vector(j,k-3)
+						vector(i,k) = vector(i,k) - inc
+						vector(j,k) = vector(j,k) + inc
 					enddo
 					! para p
 					do k = 10, 12
-						qi = vector(i,k-9)-vector(j,k-9)
-						call CdCP(qi,L)
-						vector(i,k) = vector(i,k) + delta*qi*V_aux
-						vector(j,k) = vector(j,k) - delta*qi*V_aux
-						! qi = vector(i,k-9)
-						! qj = vector(j,k-9)
-						! vector(i,k) = vector(i,k) + delta*(qi-qj)*V_aux
-						! vector(j,k) = vector(j,k) - delta*(qi-qj)*V_aux
+						qij = vector(i,k-9)-vector(j,k-9)
+						call CdCP(qij,L)
+						inc = delta*qij*V_aux
+						vector(i,k) = vector(i,k) + inc
+						vector(j,k) = vector(j,k) - inc
 				enddo
 			enddo
 		end do
@@ -81,50 +76,45 @@ module integrador
 			real(16) :: V_aux
 			real(16) :: pij2
 			real(16) :: xij2
-			real(16) :: pi
-			real(16) :: pj
-			real(16) :: xi
-			real(16) :: xj
+			real(16) :: pij
+			!real(16) :: pj
+			real(16) :: xij
+			real(16) :: inc
+			!real(16) :: xj
 			integer :: i ! indice de particula
 			integer :: j ! indice de sumatoria
 			integer :: k ! indice de componente vectorial
 			integer :: N
 			!q,y,x,p
 			N = ubound(vector, dim=1)
+			vector(:,1:3) = vector(:,1:3)+delta*vector(:,10:12)
 			do i = 1, N
-				do k = 1, 3
-					pi = vector(i,k+9)
-					vector(i,k) = vector(i,k) + delta*pi
-				enddo
 				! x y p quedan igual
 				do j = i+1,N
 					xij2 = DistanciaCuad(vector,i,j,L,2)
 					pij2 = DistanciaCuad(vector,i,j,L,3)
 					V_aux = V*Valor_LUT_der(LUT,0.5*(xij2+pij2))
-					!V_aux = V*exp(-0.5*(xij2+pij2))
 					! para q
 					do k = 1, 3
-						pi = vector(i,k+9)
-						pj = vector(j,k+9)
-						vector(i,k) = vector(i,k) - delta*(pi-pj)*V_aux
-						vector(j,k) = vector(j,k) + delta*(pi-pj)*V_aux
+						pij = vector(i,k+9)-vector(j,k+9)
+						!pj = vector(j,k+9)
+						inc = delta*pij*V_aux
+						vector(i,k) = vector(i,k) - inc
+						vector(j,k) = vector(j,k) + inc
 					enddo
 					! para y
 					do k = 4, 6
-						xi = vector(i,k+3)-vector(j,k+3)
-						call CdCP(xi,L)
-						vector(i,k) = vector(i,k) + delta*xi*V_aux
-						vector(j,k) = vector(j,k) - delta*xi*V_aux
-						! xi = vector(i,k+3)
-						! xj = vector(j,k+3)
-						! vector(i,k) = vector(i,k) + delta*(xi-xj)*V_aux
-						! vector(j,k) = vector(j,k) - delta*(xi-xj)*V_aux
+						xij = vector(i,k+3)-vector(j,k+3)
+						call CdCP(xij,L)
+						inc = delta*xij*V_aux
+						vector(i,k) = vector(i,k) + inc
+						vector(j,k) = vector(j,k) - inc
 					enddo
 				enddo
 			enddo
 		end subroutine
 
-	  subroutine TransformacionHc(vector,matrizhc,Lado)
+	subroutine TransformacionHc(vector,matrizhc,Lado)
 		real(16), dimension(:,:), intent(inout) :: vector
 	  real(16), dimension(12) :: nvector
 	  real(16), dimension(4,4), intent(in) :: matrizhc
@@ -160,25 +150,6 @@ module integrador
 		real(16), dimension(4,4)  :: matrizhc
 		real(16), intent(in) :: arg
 		matrizhc=0
-!		matrizhc(1,1)=1+cos(arg)
-!		matrizhc(3,3)=1+cos(arg)
-!		matrizhc(2,4)=1+cos(arg)
-!		matrizhc(4,2)=1+cos(arg)
-!
-!		matrizhc(1,2)=-sin(arg)
-!		matrizhc(2,1)=-sin(arg)
-!		matrizhc(3,4)=-sin(arg)
-!		matrizhc(4,3)=-sin(arg)
-
-!		matrizhc(1,4)=sin(arg)
-!		matrizhc(4,1)=sin(arg)
-!		matrizhc(2,3)=sin(arg)
-!		matrizhc(3,2)=sin(arg)
-
-!		matrizhc(1,3)=1-cos(arg)
-!		matrizhc(2,2)=1-cos(arg)
-!		matrizhc(3,1)=1-cos(arg)
-!		matrizhc(4,4)=1-cos(arg)
 
 !creo que asi se solucionaba pero lo hice de la manera chota de arriba  igual habira que testear esto
 
