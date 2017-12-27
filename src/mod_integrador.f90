@@ -11,6 +11,7 @@ module integrador
 		public :: TransformacionHc
 		public :: matrizhc
 		public :: avanzar
+		public:: avanzarN
 		!vector  (q,y,x,p)  [N,12]
 
 	contains
@@ -166,8 +167,6 @@ module integrador
 		real(16), intent(in) :: delta
 		real(16), intent(in) :: V
 		real(16), intent(in) :: L
-		integer(4) :: i
-		integer(4) :: j
 		call TransformacionHa(vector,delta*0.5,V,L,LUT)
 	  call TransformacionHb(vector,delta*0.5,V,L,LUT)
 		!call CCperiod2(vector,L)
@@ -178,4 +177,28 @@ module integrador
 		call CCperiod2(vector,L)
 	end subroutine
 
+! Comprimo los N pasos para ahorrarme transformaciones combinando el Ha inicial con el final
+	subroutine avanzarN(vector,delta,V,L,LUT,matriz,n)
+		real(16), dimension(:,:), intent(inout) :: vector
+		real(16), dimension(:,:), intent(in) :: matriz
+		real(16), dimension(:), intent(in) :: LUT
+		real(16), intent(in) :: delta
+		real(16), intent(in) :: V
+		real(16), intent(in) :: L
+		integer(4), intent(in) :: n
+		integer(4) :: i
+		call TransformacionHa(vector,delta*0.5,V,L,LUT)
+		call TransformacionHb(vector,delta*0.5,V,L,LUT)
+		call TransformacionHc(vector,matriz,L)
+		call TransformacionHb(vector,delta*0.5,V,L,LUT)
+		do i=1,(n-1)
+			call TransformacionHa(vector,delta,V,L,LUT)
+			call CCperiod2(vector,L)
+			call TransformacionHb(vector,delta*0.5,V,L,LUT)
+			call TransformacionHc(vector,matriz,L)
+			call TransformacionHb(vector,delta*0.5,V,L,LUT)
+		end do
+		call TransformacionHa(vector,delta*0.5,V,L,LUT)
+		call CCperiod2(vector,L)
+	end subroutine
 end module

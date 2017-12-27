@@ -23,6 +23,9 @@ program menu
   if(args(1)=="d") then
     call main_distribucion(args)
   end if
+  if(args(1)=="t") then
+    call main_tiempo()
+  end if
   deallocate(args)
 end program
 
@@ -392,12 +395,12 @@ subroutine main_distribucion(args)
   real(16) :: T
   real(16) :: rho
   real(16) :: L
-  real(16) :: E
+  real(16) :: pmax
 
   ! Variables de muestreo
-  integer(4) :: n_term = 500
-  integer(4) :: n_muestras = 30
-  integer(4) :: n_desc = 100
+  integer(4) :: n_term = 1000
+  integer(4) :: n_muestras = 100
+  integer(4) :: n_desc = 1
   integer(4) :: Nbins = 20
   real(16), dimension(:), allocatable :: distribucion
 
@@ -427,28 +430,87 @@ subroutine main_distribucion(args)
   allocate(vector(N,12))
   call inicializar(vector,T,L)
 
-  do i = 1,n_term   ! Tiempo de termalizacion
-    call avanzar(vector,delta,V,L,LUT,matriz)
-  end do
+  call avanzarN(vector,delta,V,L,LUT,matriz,n_term)   ! Tiempo de termalizacion
   ! Energia total del sistema, ningun p^2 es mayor que esto
-  E = EnergiaCinetica(vector)+EnergiaPotencial(vector,L,LUT,V)
-  write(*,*) "Energia total = ", E
+  pmax = (EnergiaCinetica(vector)+EnergiaPotencial(vector,L,LUT,V))/(N**0.5)
+  write(*,*) "Impulso maximo estimado = ", pmax
 
-  distribucion = dist_vels(vector,E/10,Nbins)
+  distribucion = dist_vels(vector,pmax,Nbins)   ! Primera muestra
   write(*,*) "Muestra", 1
-  do i = 1,(n_muestras-1)   ! Para cada muestra tengo que descorrelacionar
-    do j = 1,n_desc
-      call avanzar(vector,delta,V,L,LUT,matriz)
-    end do
-    distribucion = distribucion+dist_vels(vector,E/10,Nbins)
-    write(*,*) "Muestra", i+1
+  do i = 2,n_muestras   ! Para cada muestra posterior tengo que descorrelacionar
+    call avanzarN(vector,delta,V,L,LUT,matriz,n_desc)
+    distribucion = distribucion+dist_vels(vector,pmax,Nbins)
+    write(*,*) "Muestra", i
   end do
-  distribucion = distribucion/n_muestras
+  distribucion = distribucion/(N*n_muestras)    ! Probabilidad de tener una particula en un dado (p,p+dp)
 
   ! Guardo la data
   open(unit = 100, file="distribucion.txt")
   do i = 1,Nbins
-    write(100,*) distribucion(i)
+    write(100,*) i*pmax/Nbins, ";", distribucion(i)
   end do
   close(100)
+end subroutine
+
+
+subroutine main_tiempo()
+  use observables
+  use funciones
+  use integrador
+  use tablas
+  use init
+  use grabar
+
+  real(16), parameter :: m_pi = 3.14159265359
+  real(16), parameter :: h_barra = 25.0/47
+  real(16), parameter :: const_Vo = (1.4**2.5)/5
+
+  real(16), dimension(:,:), allocatable :: vector
+
+  ! Variables el problema
+  real(16) :: T = 1
+  real(16) :: rho
+  real(16) :: L = 8
+  real(16) :: stop
+  real(16) :: start
+
+  ! Variables de muestreo
+  integer(4) :: N=1000
+  real(16) :: T1
+  real(16) :: T2
+
+  ! Gilada
+  real(16), dimension(:), allocatable :: LUT
+  real(16) :: delta = 1E-4
+  real(16) :: w = 1E2 ! Parametro magico del integrador
+  real(16), dimension(4,4) :: matriz
+  real(16) :: V
+  integer(4) :: i
+  integer(4) :: j
+
+  rho = 125.0/512
+  V = ((3*m_pi*rho)**(2.0/3.0))*const_Vo
+
+  call init_random_seed()
+
+  call leer_tablas(LUT,'tabla.txt')
+  matriz = matrizhc(2*delta*w)
+
+  allocate(vector(125,12))
+  call inicializar(vector,T,L)
+
+  call CPU_TIME(start)
+  do i = 1,N   ! Para cada muestra posterior tengo que descorrelacionar
+    call avanzar(vector,delta,V,L,LUT,matriz)
+  end do
+  call CPU_TIME(stop)
+  T1 = stop-start
+  write(*,*) "Avanzar normal: ", T1
+  call CPU_TIME(start)
+  call avanzarN(vector,delta,V,L,LUT,matriz,N)
+  call CPU_TIME(stop)
+  T2 = stop-start
+  write(*,*) "Avanzar enchulado: ", T2
+  write(*,*) "El enchulado es", T1/T2, "veces mas rapido"
+
 end subroutine
