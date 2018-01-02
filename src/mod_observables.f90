@@ -11,6 +11,8 @@ module observables
 		public :: HBoltzmannj
 		public :: HBoltzmann
 		public :: dist_vels
+		public :: corr_T_virial
+		public :: Reescalar_vel
 
 	contains
 
@@ -94,5 +96,33 @@ module observables
 				dist_vels(j) = dist_vels(j)+1
 			end do
 		end function
+
+		real(16) function corr_T_virial(vector,L,LUT,V)		! Correccion a la temperatura del gas ideal
+			real(16), dimension(:,:), intent(in) :: vector
+			real(16), dimension(:), intent(in) :: LUT
+			real(16), intent(in) :: L
+			real(16), intent(in) :: V
+			real(16) :: prod_int
+			integer(4) :: N
+			integer :: i
+			integer :: j
+			N = ubound(vector, dim=1)
+			corr_T_virial = 0
+			do i=2,N
+				do j=1,(i-1)
+					prod_int = sum(vector(i,10:12)*(vector(i,10:12)-vector(j,10:12)))
+					corr_T_virial = corr_T_virial + prod_int*Valor_LUT(LUT,(DistanciaCuad(vector,i,j,L,0)+DistanciaCuad(vector,i,j,L,3))*0.5)
+				end do
+			end do
+			corr_T_virial = -V*corr_T_virial/(1.5*N)
+		end function
+
+		subroutine Reescalar_vel(vector,factor)
+			real(16), dimension(:,:), intent(inout) :: vector
+			real(16), intent(in) :: factor
+			vector(:,10:12) = vector(:,10:12)*factor
+			vector(:,4:6) = vector(:,4:6)*factor
+		end subroutine
+
 
 end module

@@ -24,7 +24,7 @@ program menu
     call main_distribucion(args)
   end if
   if(args(1)=="t") then
-    call main_tiempo()
+    call main_temperatura(args)
   end if
   deallocate(args)
 end program
@@ -453,7 +453,8 @@ subroutine main_distribucion(args)
 end subroutine
 
 
-subroutine main_tiempo()
+! Para correr mientras se come Vitel Tone
+subroutine main_temperatura(args)
   use observables
   use funciones
   use integrador
@@ -464,20 +465,26 @@ subroutine main_tiempo()
   real(16), parameter :: m_pi = 3.14159265359
   real(16), parameter :: h_barra = 25.0/47
   real(16), parameter :: const_Vo = (1.4**2.5)/5
+  character(len=10), dimension(7) :: args
+  character(len=30) :: name = "temperaturas_64.txt"
 
   real(16), dimension(:,:), allocatable :: vector
+  real(16), dimension(:), allocatable :: T_viriales
+  real(16), dimension(:), allocatable :: T_Boltzmann
 
   ! Variables el problema
-  real(16) :: T = 1
+  integer(4) :: N
+  real(16) :: factor
+  real(16) :: T_init
+  real(16) :: T_final
   real(16) :: rho
   real(16) :: L = 8
-  real(16) :: stop
   real(16) :: start
+  real(16) :: stop
 
   ! Variables de muestreo
-  integer(4) :: N=1000
-  real(16) :: T1
-  real(16) :: T2
+  integer(4) :: Nterm=1000
+  integer(4) :: Nmuestras=1000
 
   ! Gilada
   real(16), dimension(:), allocatable :: LUT
@@ -488,29 +495,63 @@ subroutine main_tiempo()
   integer(4) :: i
   integer(4) :: j
 
-  rho = 125.0/512
-  V = ((3*m_pi*rho)**(2.0/3.0))*const_Vo
+  read(args(2), *) Nterm
+  read(args(3), *) Nmuestras
+  read(args(4), *) N
+  read(args(5), *) T_init
+  read(args(6), *) T_final
+  read(args(7), *) N_temp
+  write(*,*) N,T_init,T_final,N_temp
+
+  rho = N/(L**3)
+  V = 10*((3*m_pi*rho)**(2.0/3.0))*const_Vo
 
   call init_random_seed()
 
   call leer_tablas(LUT,'tabla.txt')
   matriz = matrizhc(2*delta*w)
 
-  allocate(vector(125,12))
-  call inicializar(vector,T,L)
+  allocate(vector(N,12))
+  allocate(T_Boltzmann(N_temp))
+  allocate(T_viriales(N_temp))
+  call inicializar(vector,T_init,L)
+  T_Boltzmann(:) = 0
+  T_viriales(:) = 0
 
+  ! Termalizacion
   call CPU_TIME(start)
-  do i = 1,N   ! Para cada muestra posterior tengo que descorrelacionar
-    call avanzar(vector,delta,V,L,LUT,matriz)
+  call avanzarN(vector,delta,V,L,LUT,matriz,Nterm)
+  call CPU_TIME(stop)
+  write(*,*) "Segundo",stop-start,": Termalizacion"
+
+  ! Primer temperatura
+  do j=1,Nmuestras
+    call avanzarN(vector,delta,V,L,LUT,matriz,Nterm/100)
+    T_Boltzmann(1) = T_Boltzmann(1) + EnergiaCinetica(vector)/(1.5*N*Nmuestras)
+    T_viriales(1) = T_viriales(1) + corr_T_virial(vector,L,LUT,V)/Nmuestras
   end do
+  T_viriales(1) = T_viriales(1) + T_Boltzmann(1)
   call CPU_TIME(stop)
-  T1 = stop-start
-  write(*,*) "Avanzar normal: ", T1
-  call CPU_TIME(start)
-  call avanzarN(vector,delta,V,L,LUT,matriz,N)
-  call CPU_TIME(stop)
-  T2 = stop-start
-  write(*,*) "Avanzar enchulado: ", T2
-  write(*,*) "El enchulado es", T1/T2, "veces mas rapido"
+  write(*,*) "Segundo",stop-start,": T=", T_init
+
+  do i = 2,N_temp
+    factor = (T_init*(N_temp-1)-(i-1)*(T_init-T_final))/(T_init*(N_temp-1)-(i-2)*(T_init-T_final))
+    call Reescalar_vel(vector,sqrt(factor))
+    call avanzarN(vector,delta,V,L,LUT,matriz,Nterm/100)  ! Termalizo
+    do j=1,Nmuestras
+      call avanzarN(vector,delta,V,L,LUT,matriz,Nterm/100)
+      T_Boltzmann(i) = T_Boltzmann(i) + EnergiaCinetica(vector)/(1.5*N*Nmuestras)
+      T_viriales(i) = T_viriales(i) + corr_T_virial(vector,L,LUT,V)/Nmuestras
+    end do
+    T_viriales(i) = T_viriales(i) + T_Boltzmann(i)
+    call CPU_TIME(stop)
+    write(*,*) "Segundo",stop-start,": T=", T_init-(i-1)*(T_init-T_final)/(N_temp-1)
+  end do
+
+  open(unit = 100, file=name)
+  do i = 1,N_temp
+    write(100,*) T_init-(i-1)*(T_init-T_final)/(N_temp-1), ";", T_Boltzmann(i), ";",  T_viriales(i)
+  end do
+  close(100)
 
 end subroutine
