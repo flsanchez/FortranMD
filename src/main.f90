@@ -14,12 +14,6 @@ program menu
   if (args(1)=="f") then
     call EspacioFases(args)
   end if
-  if(args(1)=="i") then
-    call main_inicializar(args)
-  end if
-  if(args(1)=="h") then
-    call main_hboltzmann(args)
-  end if
   if(args(1)=="d") then
     call main_distribucion(args)
   end if
@@ -180,200 +174,6 @@ subroutine EspacioFases(args)  ! Aun no esta terminada (de hecho, no tiene nada)
   end do
 end subroutine
 
-subroutine main_inicializar(args)
-  use observables
-  use funciones
-  use integrador
-  use tablas
-  use init
-  use grabar
-
-  character(len=10), dimension(4) :: args
-  integer(4) :: N
-  real(16) :: T
-  real(16) :: rho
-  real(16) :: L
-  real(16), dimension(:,:), allocatable :: vector
-  integer(4) :: i
-
-  read(args(2), *) N
-  read(args(3), *) T
-  read(args(4), *) rho
-  write(*,*) N,T,rho
-  L = (N/rho)**(1.0/3)
-  allocate(vector(N,12))
-
-  call inicializar(vector,T,L)
-
-  open(unit=100, file ="init.xyz")
-  call grabarXYZ(vector,100,L)
-  ! do i=1,N
-  !   !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
-  !   write(100,*) vector(i,1:6)
-  ! end do
-  ! close(100)
-  ! open(unit=100, file ="gauss.txt")
-  ! do i=1,100000
-  !   !write(100,*) vector(i,1),vector(i,2),vector(i,3),vector(i,4),vector(i,5),vector(i,6)
-  !   write(100,*) Rand_Gauss(T)
-  ! end do
-  close(100)
-
-end subroutine
-
-subroutine main_hboltzmann(args)
-  use observables
-  use funciones
-  use integrador
-  use tablas
-  use init
-  use grabar
-
-  character(len=10), dimension(4) :: args
-  real(16), dimension(:,:), allocatable :: vector
-
-  integer(4) :: N
-  real(16) :: T
-  real(16) :: rho
-  real(16) :: L
-
-  character(len=200) :: tuvieja
-
-  real(16), dimension(:), allocatable :: LUT
-  real(16) :: delta= 1E-4
-  real(16) :: w = 1E2 ! Parametro magico del integrador
-  real(16), dimension(4,4) :: matriz
-  real(16) :: V = 10
-
-  integer :: niter = 10000
-  integer(4) :: i
-  integer(4) :: j
-  real(16), dimension(6) :: vel
-  integer(4) :: BinsHBoltzmann = 100
-  real(16) :: H
-
-  call leer_tablas(LUT,'tabla.txt')
-  matriz = matrizhc(2*delta*w)
-
-  read(args(2), *) N
-  read(args(3), *) T
-  read(args(4), *) rho
-  write(*,*) N,T,rho
-  L = (N/rho)**(1.0/3)
-  allocate(vector(N,12))
-
-  call inicializar(vector,T,L)
-
-  open(unit = 100, file="data.txt")
-  open(unit = 101, file="posiciones.xyz")
-  open(unit = 102, file="momentos.txt")
-  ! h = HBoltzmann(vector,BinsHBoltzmann)
-  ! write(100,*) h
-  ! write(*,*) h
-
-  do i = 1,niter
-    do j = 1,3
-      vel(j) = sum(vector(:,j+9))
-      vel(j+3) = sum(vector(:,j+3))
-    enddo
-    write(102,*) vel(1),";",vel(2),";",vel(3),";",vel(4),";",vel(5),";",vel(6)
-    call avanzar(vector,delta,V,L,LUT,matriz)
-    if(mod(i,100) == 0) then
-      vel = 0
-      write(*,*) "Paso: ",i
-    end if
-    ! HBoltzmann(vector,BinsHBoltzmann),";",
-    write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
-    call grabarXYZ(vector, 101, L)
-
-  end do
-
-  close(100)
-  close(101)
-  close(102)
-end subroutine
-
-subroutine main_debug(args)
-  use observables
-  use funciones
-  use integrador
-  use tablas
-  use init
-  use grabar
-
-  character(len=10), dimension(4) :: args
-  real(16), dimension(:,:), allocatable :: vector
-
-  integer(4) :: N
-  real(16) :: T
-  real(16) :: rho
-  real(16) :: L
-
-  real(16), dimension(:), allocatable :: LUT
-  real(16) :: delta = 1E-4
-  real(16) :: w = 1E2 ! Parametro magico del integrador
-  real(16), dimension(4,4) :: matriz
-  real(16) :: V = 10
-
-  integer :: niter = 30000
-  integer(4) :: iter
-  integer(4) :: i
-  integer(4) :: j
-  real(16), dimension(6) :: vel
-  integer(4) :: BinsHBoltzmann = 100
-  real(16) :: H
-
-  call init_random_seed()
-
-  call leer_tablas(LUT,'tabla.txt')
-  matriz = matrizhc(2*delta*w)
-
-  read(args(2), *) N
-  read(args(3), *) T
-  read(args(4), *) rho
-  write(*,*) N,T,rho
-  L = (N/rho)**(1.0/3)
-  allocate(vector(N,12))
-
-  call inicializar(vector,T,L)
-
-  open(unit = 100, file="data.txt")
-  open(unit = 101, file="posiciones.xyz")
-  open(unit = 102, file="momentos.txt")
-  open(unit = 103, file="debug.txt")
-  open(unit = 104, file="interaccion.txt")
-  ! h = HBoltzmann(vector,BinsHBoltzmann)
-  ! write(100,*) h
-  ! write(*,*) h
-
-  do iter = 1,niter
-    ! do j = 1,3
-    !   vel(j) = sum(vector(:,j+9))
-    !   vel(j+3) = sum(vector(:,j+3))
-    ! enddo
-    ! write(102,*) vel(1),";",vel(2),";",vel(3),";",vel(4),";",vel(5),";",vel(6)
-    ! call grabarVector(vector,103)
-    call avanzar(vector,delta,V,L,LUT,matriz)
-    if(mod(iter,niter/100) == 0) then
-      write(*,*) "Paso: ",iter
-    end if
-    ! HBoltzmann(vector,BinsHBoltzmann),";",
-    ! write(104,"(f16.8A)", advance='no') Valor_LUT(LUT,(DistanciaCuad(vector,7,8,L,0)+DistanciaCuad(vector,7,8,L,3))*0.5)*V
-    ! write(104,*)";",DistanciaCuad(vector,7,8,L,0),";",DistanciaCuad(vector,7,8,L,3)
-    ! call grabarXYZ(vector, 101, L)
-    !write(100,*) EnergiaCinetica(vector),";", EnergiaPotencial(vector,L,LUT,V),";",vector(1,4),";",vector(1,10)
-
-  end do
-
-  deallocate(vector)
-  deallocate(LUT)
-  close(100)
-  close(101)
-  close(102)
-  close(103)
-end subroutine
-
-
 
 subroutine main_distribucion(args)
   use observables
@@ -385,9 +185,10 @@ subroutine main_distribucion(args)
 
   real(16), parameter :: m_pi = 3.14159265359
   real(16), parameter :: h_barra = 25.0/47
-  real(16), parameter :: const_Vo = (1.4**2.5)/5
+  real(16), parameter :: const_Vo = (h_barra**5)*(1.4**2.5)/5
 
   character(len=10), dimension(4) :: args
+  character(len=40) :: archivo
   real(16), dimension(:,:), allocatable :: vector
 
   ! Variables el problema
@@ -398,58 +199,90 @@ subroutine main_distribucion(args)
   real(16) :: pmax
 
   ! Variables de muestreo
-  integer(4) :: n_term = 1000
-  integer(4) :: n_muestras = 100
-  integer(4) :: n_desc = 1
-  integer(4) :: Nbins = 20
+  integer(4) :: n_term = 2000
+  integer(4) :: n_muestras = 500
+  integer(4) :: n_desc = 100
+  integer(4) :: pasos_term = 20
+  real(16) :: factor = 0
+  real(16) :: Tinit = 0.02
   real(16), dimension(:), allocatable :: distribucion
 
   ! Gilada
   real(16), dimension(:), allocatable :: LUT
-  real(16) :: delta = 1E-4
+  real(16) :: delta = 1E-2
   real(16) :: w = 1E2 ! Parametro magico del integrador
   real(16), dimension(4,4) :: matriz
   real(16) :: V
   integer(4) :: i
   integer(4) :: j
 
+  real(16) :: start
+  real(16) :: stop
+
   read(args(2), *) N
   read(args(3), *) T
   read(args(4), *) L
   write(*,*) N,T,L
+  write(*,*) "Muestras: ", n_muestras
+  write(*,*) "Termalizacion:", n_term
+  write(*,*) "Reescalamientos:", pasos_term
+  write(*,*) "Descorrelacion:", n_desc
+  write(archivo,"(A13,I3,A1,F6.4,A4)") 'distribucion_', N,'_', T,'.txt'
+  write(*,*) archivo
 
   rho = N/(L**3)
-  V = ((3*m_pi*rho)**(2.0/3.0))*const_Vo
+!  V = ((6*m_pi*rho)**(2.0/3.0))*const_Vo  ! Sin spin
+  V = ((3*m_pi*rho)**(2.0/3.0))*const_Vo  ! Con spin 1/2
 
   call init_random_seed()
 
   call leer_tablas(LUT,'tabla.txt')
   matriz = matrizhc(2*delta*w)
 
-  allocate(distribucion(Nbins))
+!  allocate(distribucion(Nbins))
   allocate(vector(N,12))
-  call inicializar(vector,T,L)
+  call inicializar(vector,Tinit,L)
+  factor = (T/2)**(1.0/pasos_term)
 
+  call CPU_TIME(start)
+  do i=1,pasos_term
+    call avanzarN(vector,delta,V,L,LUT,matriz,n_term)   ! Tiempo de termalizacion
+    vector(:,10:12) = factor*vector(:,10:12)
+    vector(:,4:6) = factor*vector(:,4:6)
+  end do
+  call CPU_TIME(stop)
+  write(*,*) "Termalizacion:", stop-start
+
+  open(unit = 100, file=archivo)
+! Metodo guardando los p
+  call CPU_TIME(start)
   call avanzarN(vector,delta,V,L,LUT,matriz,n_term)   ! Tiempo de termalizacion
-  ! Energia total del sistema, ningun p^2 es mayor que esto
-  pmax = (EnergiaCinetica(vector)+EnergiaPotencial(vector,L,LUT,V))/(N**0.5)
-  write(*,*) "Impulso maximo estimado = ", pmax
-
-  distribucion = dist_vels(vector,pmax,Nbins)   ! Primera muestra
-  write(*,*) "Muestra", 1
+  write(100,*) EnergiaCinetica(vector)
+  write(100,*) corr_T_virial(vector,L,LUT,V)
+  do j=1,ubound(vector,1)
+    !write(100,*) sum(vector(j,10:12)**2)
+    write(100,*) vector(j,10)
+    write(100,*) vector(j,11)
+    write(100,*) vector(j,12)
+  end do
+  call CPU_TIME(stop)
+  write(*,*) "Muestra 1: Tardo", stop-start
+  factor = (stop-start)*(n_muestras-1)
+  write(*,*) "Tiempo restante estimado:", factor
   do i = 2,n_muestras   ! Para cada muestra posterior tengo que descorrelacionar
     call avanzarN(vector,delta,V,L,LUT,matriz,n_desc)
-    distribucion = distribucion+dist_vels(vector,pmax,Nbins)
+    write(100,*) EnergiaCinetica(vector)
+    write(100,*) corr_T_virial(vector,L,LUT,V)
+    do j=1,ubound(vector,1)
+      !write(100,*) sum(vector(j,10:12)**2)
+      write(100,*) vector(j,10)
+      write(100,*) vector(j,11)
+      write(100,*) vector(j,12)
+    end do
     write(*,*) "Muestra", i
   end do
-  distribucion = distribucion/(N*n_muestras)    ! Probabilidad de tener una particula en un dado (p,p+dp)
-
-  ! Guardo la data
-  open(unit = 100, file="distribucion.txt")
-  do i = 1,Nbins
-    write(100,*) i*pmax/Nbins, ";", distribucion(i)
-  end do
   close(100)
+
 end subroutine
 
 
@@ -483,12 +316,12 @@ subroutine main_temperatura(args)
   real(16) :: stop
 
   ! Variables de muestreo
-  integer(4) :: Nterm=1000
+  integer(4) :: Nterm=100
   integer(4) :: Nmuestras=1000
 
   ! Gilada
   real(16), dimension(:), allocatable :: LUT
-  real(16) :: delta = 1E-4
+  real(16) :: delta = 1E-2
   real(16) :: w = 1E2 ! Parametro magico del integrador
   real(16), dimension(4,4) :: matriz
   real(16) :: V
