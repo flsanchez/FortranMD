@@ -8,7 +8,7 @@ temp = sys.argv[2]
 Nbins=10
 if len(sys.argv) == 4:
     Nbins = int(sys.argv[3])
-name = "distribucion_" + str(N)+ "_" + "%1.4f" %float(temp) + ".txt"
+name = "distribucion_" + str(N)+ "_" + "%1.3f" %float(temp) + ".txt"
 
 
 data = np.loadtxt(name, unpack = True, delimiter=";")
@@ -25,9 +25,10 @@ for i in range(0,n):
 p = np.abs(p)
 T = np.array(T)
 T_corr = np.array(T_corr)
-fermi = lambda p,mu,To: 2.0/(np.exp((0.5*p**2-mu)/To)+1.0)
+Ef = (3*np.pi*N/512)**(2.0/3)/(2*1.88**2)
+fermi = lambda p,C,mu,To: C/(np.exp((0.5*p**2-mu)/To)+1.0)
 #boltzmann = lambda p,To: np.sqrt(2*np.pi/(1.88**2*To))*np.exp(-0.5*p**2/To)*N/(2*512)
-boltzmann = lambda p,To,C: C*np.exp(-0.5*p**2/To)
+boltzmann = lambda p,To,C: C*np.exp(-0.5*p**2/To)/np.sqrt(To)
 
 print len(p)
 
@@ -35,23 +36,25 @@ plt.figure(0)
 H,bins = np.histogram(p,Nbins)
 bins = (bins[0:len(H)]+bins[1:len(H)+1])/2
 H = H/float(3*n)            # Hay 3n impulsos muestreados, me interesa saber cuantas particulas tenian impulso en cada bin
-plt.plot(bins,H, "b-")
-paramsf,coso = sco.curve_fit(fermi,bins,H)
+plt.plot(bins,H, "k.",ms=3,alpha=0.5)
+paramsf,coso = sco.curve_fit(fermi,bins,H,bounds=(0,np.inf))
 paramsb,coso = sco.curve_fit(boltzmann,bins,H,bounds=(0,np.inf))
-F = fermi(bins,paramsf[0],paramsf[1])
-B = boltzmann(bins,paramsb[0],paramsb[1])
+bins_piolas = bins
+F = fermi(bins_piolas,paramsf[0],paramsf[1],paramsf[2])
+B = boltzmann(bins_piolas,paramsb[0],paramsb[1])
 #z = np.exp(params[0]/params[1])
 To = np.mean(T/(1.5*N)+T_corr)
 LOT = np.sqrt(2*np.pi/(1.88**2*To))
-plt.plot(bins,F, "r-.")
-plt.plot(bins,B, "k--")
+plt.plot(bins_piolas,F, "c-.")
+plt.plot(bins_piolas,B, "r--")
 plt.legend(("Datos", "Ajuste Fermi", "Ajuste Boltzmann"))
-print paramsf, paramsb, sum(F),sum(B), LOT#, z
+print paramsf, paramsb, sum(F),sum(B), #LOT#, z
 
 # plt.figure(1)
 # plt.hist(p,bins=Nbins)
 # plt.xlabel("Impulso")
 # plt.ylabel("Ocurrencias")
+
 plt.figure(2)
 plt.plot(T/(1.5*N)+T_corr, "r-.")
 plt.plot(T/(1.5*N), "b--")
